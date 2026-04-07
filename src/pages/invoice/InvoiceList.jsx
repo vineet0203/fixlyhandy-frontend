@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Button, ButtonGroup, FormControl, MenuItem, Paper, Popover, Select, Stack, TextField, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
@@ -8,38 +8,31 @@ import PageHeader from '../../components/common/PageHeader';
 import CrewList from '../../components/invoice/CrewList';
 import JobCard from '../../components/invoice/JobCard';
 import InvoicePreview from './InvoicePreview';
+import employeeService from '../../features/employees/services/employeeService';
+import jobService from '../../features/jobs/services/jobService';
+import invoiceService from './services/invoiceService';
+import { mapJobToInvoiceRow } from './utils/invoiceMappers';
+import { useToast } from '../../components/common/ToastProvider';
 
-const crewMembers = [
-  { id: 1, name: 'Jhon', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', team: 'all' },
-  { id: 2, name: 'Mike', avatar: 'https://randomuser.me/api/portraits/men/44.jpg', team: 'all' },
-  { id: 3, name: 'Sarah', avatar: 'https://randomuser.me/api/portraits/women/68.jpg', team: 'all' },
-  { id: 4, name: 'Carlos', avatar: 'https://randomuser.me/api/portraits/men/71.jpg', team: 'all' },
-  { id: 5, name: 'Carelina', avatar: 'https://randomuser.me/api/portraits/women/55.jpg', team: 'all' },
-];
+const toIsoDate = (date) => {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toISOString().split('T')[0];
+};
 
-const jobsByCrew = {
-  1: [
-    { id: 1, jobId: '#Jb-1024', jobName: 'Home Repair Services', date: '12-Jan-2026', viewType: 'Weekly', rate: 500 },
-    { id: 2, jobId: '#Jb-1024', jobName: 'AC repair at Residence', date: '14-Jan-2026', viewType: 'Weekly', rate: 100 },
-    { id: 3, jobId: '#Jb-1024', jobName: 'Gardening Landscaping', date: '16-Jan-2026', viewType: 'Weekly', rate: 200 },
-  ],
-  2: [
-    { id: 4, jobId: '#Jb-2090', jobName: 'Kitchen Plumbing Service', date: '11-Jan-2026', viewType: 'Weekly', rate: 220 },
-    { id: 5, jobId: '#Jb-2091', jobName: 'Wall Paint Touchup', date: '13-Jan-2026', viewType: 'Weekly', rate: 180 },
-  ],
-  3: [
-    { id: 6, jobId: '#Jb-3380', jobName: 'Garden Maintenance', date: '15-Jan-2026', viewType: 'Weekly', rate: 160 },
-  ],
-  4: [
-    { id: 7, jobId: '#Jb-4011', jobName: 'Residential Wiring', date: '17-Jan-2026', viewType: 'Weekly', rate: 420 },
-  ],
-  5: [
-    { id: 8, jobId: '#Jb-5020', jobName: 'Bathroom Deep Cleaning', date: '18-Jan-2026', viewType: 'Weekly', rate: 140 },
-  ],
+const addDays = (dateString, days) => {
+  const parsed = new Date(dateString);
+  if (Number.isNaN(parsed.getTime())) return '';
+  parsed.setDate(parsed.getDate() + days);
+  return parsed.toISOString().split('T')[0];
 };
 
 const InvoiceList = () => {
-  const [selectedCrewId, setSelectedCrewId] = useState(1);
+  const { showToast } = useToast();
+  const [crewMembers, setCrewMembers] = useState([]);
+  const [selectedCrewId, setSelectedCrewId] = useState(null);
+  const [jobs, setJobs] = useState([]);
   const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState('all');
   const [selectedTeamFilter, setSelectedTeamFilter] = useState('all');
   const [selectedView, setSelectedView] = useState('month');
@@ -47,45 +40,123 @@ const InvoiceList = () => {
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 0, 6));
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
+  const [creatingInvoice, setCreatingInvoice] = useState(false);
+  const [previewInvoiceId, setPreviewInvoiceId] = useState(null);
 
-  const jobs = useMemo(() => {
-    return jobsByCrew[selectedCrewId] || [];
-  }, [selectedCrewId]);
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await employeeService.getAll({ per_page: 100, page: 1 });
+        const data = Array.isArray(response?.data) ? response.data : [];
+        const mapped = data.map((employee) => ({
+          id: employee.id,
+          name: employee.full_name || `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || `Employee ${employee.id}`,
+          avatar: employee.profile_photo || '',
+          team: employee.department || 'all',
+        }));
 
-  const selectedCrew = crewMembers.find((member) => member.id === selectedCrewId) || crewMembers[0];
+        setCrewMembers(mapped);
 
-  if (showPreview) {
+        if (mapped.length > 0) {
+          setSelectedCrewId(mapped[0].id);
+        }
+      } catch (error) {
+        showToast('Failed to load employees for invoice generation.', 'error');
+      }
+    };
+
+    fetchEmployees();
+  }, [showToast]);
+
+  useEffect(() => {
+    const fetchJobsForEmployee = async () => {
+      if (!selectedCrewId) {
+        setJobs([]);
+        return;
+      }
+
+      try {
+        const response = await jobService.getAll({ per_page: 100, page: 1 });
+        const data = Array.isArray(response?.data) ? response.data : [];
+        const filtered = data.filter((job) => {
+          const latestEmployeeId = Number(job?.latest_assignment?.employee_id || 0);
+          return latestEmployeeId === Number(selectedCrewId);
+        });
+        setJobs(filtered);
+      } catch (error) {
+        showToast('Failed to load jobs for selected employee.', 'error');
+        setJobs([]);
+      }
+    };
+
+    fetchJobsForEmployee();
+  }, [selectedCrewId, showToast]);
+
+  const jobCards = useMemo(() => {
+    const viewLabel = selectedView.charAt(0).toUpperCase() + selectedView.slice(1);
+
+    return jobs.map((job) => ({
+      id: job.id,
+      jobId: job.job_number ? `#${job.job_number}` : `#${job.id}`,
+      jobName: job.title || '-',
+      date: job.start_date || job.issue_date || '-',
+      viewType: viewLabel,
+      rate: Number(job.total_amount || 0),
+    }));
+  }, [jobs, selectedView]);
+
+  const handleGenerateInvoice = async () => {
+    if (!selectedCrewId) {
+      showToast('Please select an employee before generating invoice.', 'error');
+      return;
+    }
+
+    if (jobs.length === 0) {
+      showToast('No assigned jobs found for selected employee.', 'error');
+      return;
+    }
+
+    const billDate = selectedView === 'month' ? toIsoDate(selectedDate) : (fromDate || toIsoDate(new Date()));
+    const deliveryDate = toDate || billDate;
+    const paymentDeadline = addDays(deliveryDate || billDate, 15);
+    const billingClient = jobs[0]?.client || {};
+
+    const payload = {
+      employee_id: selectedCrewId,
+      bill_date: billDate,
+      delivery_date: deliveryDate,
+      payment_deadline: paymentDeadline,
+      mileage: 0,
+      other_expense: 0,
+      vat: 0,
+      note: '',
+      terms_conditions: '',
+      billing_address: {
+        name: billingClient.name || '-',
+        street: '-',
+        contact: [billingClient.contact_phone, billingClient.contact_email].filter(Boolean).join(' | ') || '-',
+      },
+      status: 'draft',
+      items: jobs.map(mapJobToInvoiceRow),
+    };
+
+    try {
+      setCreatingInvoice(true);
+      const created = await invoiceService.create(payload);
+      setPreviewInvoiceId(created.id);
+      showToast('Invoice generated successfully.', 'success');
+    } catch (error) {
+      showToast(error?.response?.data?.message || 'Failed to generate invoice.', 'error');
+    } finally {
+      setCreatingInvoice(false);
+    }
+  };
+
+  if (previewInvoiceId) {
     return (
       <InvoicePreview
-        onBackToList={() => setShowPreview(false)}
-        invoiceData={{
-          invoiceNumber: '#2020-05-0001',
-          customer: {
-            name: 'John Brandon',
-            avatar: selectedCrew.avatar,
-            address: '789/1 Sector-2c, 38200 Gandhinagar, France',
-            contact: '848172194 | contact@betao.se',
-          },
-          totalAmount: '1,000',
-          billDate: '03/05/2020',
-          deliveryDate: '03/05/2020',
-          paymentDeadline: '05/18/2020',
-          mileage: '$50',
-          billingAddress: {
-            name: 'Willy Wonka',
-            street: '1445 West Norwood Avenue, Itasca, illinois, USA',
-            contact: '9723041054 | om@om.com',
-          },
-          note: 'This is a custom message that might be relevant to the customer. It can span up to three or four rows. It can span up to three or four rows.',
-          terms: 'Please pay within 15 days of receiving this invoice.',
-          summary: {
-            weeklyAmount: '$1,000 Incl. VAT',
-            milage: '$50',
-            otherExpense: 'NA',
-            total: '$1050  Incl. VAT',
-          },
-        }}
+        onBackToList={() => setPreviewInvoiceId(null)}
+        invoiceId={previewInvoiceId}
       />
     );
   }
@@ -134,7 +205,13 @@ const InvoiceList = () => {
             <Typography sx={{ fontSize: 12, color: '#7a8190', ml: 0.75, mb: 0.25 }}>Employees</Typography>
             <Select
               value={selectedEmployeeFilter}
-              onChange={(event) => setSelectedEmployeeFilter(event.target.value)}
+              onChange={(event) => {
+                const value = event.target.value;
+                setSelectedEmployeeFilter(value);
+                if (value !== 'all') {
+                  setSelectedCrewId(Number(value));
+                }
+              }}
               IconComponent={KeyboardArrowDownIcon}
               sx={{
                 height: 44,
@@ -145,6 +222,11 @@ const InvoiceList = () => {
               }}
             >
               <MenuItem value="all">All Employees</MenuItem>
+              {crewMembers.map((employee) => (
+                <MenuItem key={employee.id} value={employee.id}>
+                  {employee.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -262,7 +344,7 @@ const InvoiceList = () => {
 
             <Box sx={{ mt: 1, position: 'relative' }}>
               <Box sx={{ position: 'absolute', left: 16, top: 20, bottom: 26, width: 2, bgcolor: '#2f73d2', opacity: 0.7 }} />
-              {jobs.map((job) => (
+              {jobCards.map((job) => (
                 <JobCard key={job.id} job={job} selectedView={selectedView} />
               ))}
             </Box>
@@ -270,7 +352,7 @@ const InvoiceList = () => {
             {selectedView === 'month' && (
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 1, mt: -0.5 }}>
                 <Typography sx={{ fontSize: 16, fontWeight: 500, color: '#2c2f39' }}>
-                  Job Rate: $200
+                  Job Rate: ${jobs.length > 0 ? (jobs.reduce((sum, job) => sum + Number(job.total_amount || 0), 0) / jobs.length).toFixed(2) : '0.00'}
                 </Typography>
               </Box>
             )}
@@ -278,8 +360,9 @@ const InvoiceList = () => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25, pr: 0.5, pb: 0.25 }}>
               <Button
                 variant="contained"
-                onClick={() => setShowPreview(true)}
+                onClick={handleGenerateInvoice}
                 startIcon={<DescriptionOutlinedIcon />}
+                disabled={creatingInvoice}
                 sx={{
                   bgcolor: '#2f73d2',
                   '&:hover': { bgcolor: '#2f73d2' },
@@ -291,7 +374,7 @@ const InvoiceList = () => {
                   height: 42,
                 }}
               >
-                Generate Invoice
+                {creatingInvoice ? 'Generating...' : 'Generate Invoice'}
               </Button>
             </Box>
           </Paper>
