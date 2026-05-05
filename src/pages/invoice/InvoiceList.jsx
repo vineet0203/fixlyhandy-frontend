@@ -106,6 +106,8 @@ const InvoiceList = () => {
   // Job Filters
   const [jobFromDate, setJobFromDate] = useState('');
   const [jobToDate, setJobToDate] = useState('');
+  const [appliedJobFromDate, setAppliedJobFromDate] = useState('');
+  const [appliedJobToDate, setAppliedJobToDate] = useState('');
   const [jobStatus, setJobStatus] = useState('all');
 
   const [jobPage, setJobPage] = useState(0);
@@ -119,6 +121,8 @@ const InvoiceList = () => {
   const [historyStatus, setHistoryStatus] = useState('all');
   const [historyFromDate, setHistoryFromDate] = useState('');
   const [historyToDate, setHistoryToDate] = useState('');
+  const [appliedHistoryFromDate, setAppliedHistoryFromDate] = useState('');
+  const [appliedHistoryToDate, setAppliedHistoryToDate] = useState('');
 
   const [historyPage, setHistoryPage] = useState(0);
   const [historyRowsPerPage, setHistoryRowsPerPage] = useState(10);
@@ -188,6 +192,8 @@ const InvoiceList = () => {
       };
       if (historyEmpId !== 'all') params.employee_id = historyEmpId;
       if (historyStatus !== 'all') params.status = historyStatus;
+      if (appliedHistoryFromDate) params.date_from = appliedHistoryFromDate;
+      if (appliedHistoryToDate) params.date_to = appliedHistoryToDate;
 
       const response = await invoiceService.getAll(params);
       setInvoices(response?.data || []);
@@ -201,7 +207,7 @@ const InvoiceList = () => {
     if (currentTab === 1) {
       loadHistory();
     }
-  }, [currentTab, historyPage, historyRowsPerPage, historyEmpId, historyStatus]);
+  }, [currentTab, historyPage, historyRowsPerPage, historyEmpId, historyStatus, appliedHistoryFromDate, appliedHistoryToDate]);
 
   const handleGenerateInvoice = async (jobRecord) => {
     if (!selectedEmpId) {
@@ -279,8 +285,8 @@ const InvoiceList = () => {
   let filteredJobs = jobs.filter(j => {
     if (jobStatus !== 'all' && j.status?.toLowerCase() !== jobStatus.toLowerCase()) return false;
     const jobDateStr = j.start_date || j.issue_date || '';
-    if (jobFromDate && jobDateStr < jobFromDate) return false;
-    if (jobToDate && jobDateStr > jobToDate) return false;
+    if (appliedJobFromDate && jobDateStr < appliedJobFromDate) return false;
+    if (appliedJobToDate && jobDateStr > appliedJobToDate) return false;
     return true;
   });
 
@@ -445,6 +451,8 @@ const InvoiceList = () => {
                     type="date"
                     size="small"
                     label="From"
+                    name="jobFilterFrom"
+                    autoComplete="off"
                     InputLabelProps={{ shrink: true }}
                     value={jobFromDate}
                     onChange={e => setJobFromDate(e.target.value)}
@@ -454,6 +462,8 @@ const InvoiceList = () => {
                     type="date"
                     size="small"
                     label="To"
+                    name="jobFilterTo"
+                    autoComplete="off"
                     InputLabelProps={{ shrink: true }}
                     value={jobToDate}
                     onChange={e => setJobToDate(e.target.value)}
@@ -468,6 +478,33 @@ const InvoiceList = () => {
                       <MenuItem value="cancelled">Cancelled</MenuItem>
                     </Select>
                   </FormControl>
+                  <Button 
+                    variant="contained" 
+                    size="small" 
+                    onClick={() => {
+                      setAppliedJobFromDate(jobFromDate);
+                      setAppliedJobToDate(jobToDate);
+                    }}
+                    sx={{ borderRadius: 2, px: 2, textTransform: 'none' }}
+                  >
+                    Apply
+                  </Button>
+                  {(appliedJobFromDate || appliedJobToDate || jobFromDate || jobToDate || jobStatus !== 'all') && (
+                    <Button 
+                      variant="outlined" 
+                      size="small" 
+                      onClick={() => {
+                        setJobFromDate('');
+                        setJobToDate('');
+                        setAppliedJobFromDate('');
+                        setAppliedJobToDate('');
+                        setJobStatus('all');
+                      }}
+                      sx={{ borderRadius: 2, minWidth: 'auto', px: 1, color: '#64748b', borderColor: '#cbd5e1' }}
+                    >
+                      Clear
+                    </Button>
+                  )}
                 </Stack>
               </Box>
 
@@ -590,6 +627,8 @@ const InvoiceList = () => {
                 type="date"
                 size="small"
                 label="From"
+                name="historyFilterFrom"
+                autoComplete="off"
                 InputLabelProps={{ shrink: true }}
                 value={historyFromDate}
                 onChange={e => setHistoryFromDate(e.target.value)}
@@ -599,11 +638,42 @@ const InvoiceList = () => {
                 type="date"
                 size="small"
                 label="To"
+                name="historyFilterTo"
+                autoComplete="off"
                 InputLabelProps={{ shrink: true }}
                 value={historyToDate}
                 onChange={e => setHistoryToDate(e.target.value)}
                 sx={{ width: 140, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
+              <Button 
+                variant="contained" 
+                size="small" 
+                onClick={() => {
+                  setAppliedHistoryFromDate(historyFromDate);
+                  setAppliedHistoryToDate(historyToDate);
+                }}
+                sx={{ borderRadius: 2, px: 2, height: 40, textTransform: 'none' }}
+              >
+                Apply
+              </Button>
+              {(appliedHistoryFromDate || appliedHistoryToDate || historyFromDate || historyToDate || historyEmpId !== 'all' || historyStatus !== 'all' || historySearch !== '') && (
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  onClick={() => {
+                    setHistoryFromDate('');
+                    setHistoryToDate('');
+                    setAppliedHistoryFromDate('');
+                    setAppliedHistoryToDate('');
+                    setHistoryEmpId('all');
+                    setHistoryStatus('all');
+                    setHistorySearch('');
+                  }}
+                  sx={{ borderRadius: 2, minWidth: 'auto', px: 1.5, height: 40, color: '#64748b', borderColor: '#cbd5e1' }}
+                >
+                  Clear
+                </Button>
+              )}
             </Box>
 
             {/* Active Filters */}
