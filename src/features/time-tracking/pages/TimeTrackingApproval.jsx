@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, TextField, Grid, Alert } from '@mui/material';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, TextField, Grid, Alert } from '@mui/material';
 import vendorTimeTrackingService from '../services/vendorTimeTrackingService';
 import PageHeader from '../../../components/common/PageHeader';
+import PageLoader from '../../../components/common/Loader/PageLoader';
+import TableSkeleton from '../../../components/common/Loader/TableSkeleton';
 
 const statusColorMap = {
   pending: 'warning',
@@ -268,9 +270,11 @@ const TimeTrackingApproval = () => {
       </Grid>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
+        <TableSkeleton
+          rows={5}
+          columns={9}
+          hasCheckbox={false}
+        />
       ) : (
         <>
           <TableContainer component={Paper} sx={{ mb: 3 }}>

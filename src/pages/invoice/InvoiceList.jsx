@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -40,6 +40,7 @@ import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 import PageHeader from '../../components/common/PageHeader';
+import PageLoader from '../../components/common/Loader/PageLoader';
 import InvoicePreview from './InvoicePreview';
 import employeeService from '../../features/employees/services/employeeService';
 import jobService from '../../features/jobs/services/jobService';
@@ -97,6 +98,8 @@ const InvoiceList = () => {
   const [employeeSearch, setEmployeeSearch] = useState('');
 
   const [jobs, setJobs] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [loadingJobs, setLoadingJobs] = useState(false);
   const [creatingInvoiceId, setCreatingInvoiceId] = useState(null);
   const [previewInvoiceId, setPreviewInvoiceId] = useState(null);
 
@@ -123,6 +126,7 @@ const InvoiceList = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
+        setLoadingEmployees(true);
         const response = await employeeService.getAll({ per_page: 100, page: 1 });
         const data = Array.isArray(response?.data) ? response.data : [];
         const mapped = data.map((emp) => ({
@@ -137,6 +141,8 @@ const InvoiceList = () => {
         }
       } catch (error) {
         showToast('Failed to load employees for invoice generation.', 'error');
+      } finally {
+        setLoadingEmployees(false);
       }
     };
     fetchEmployees();
@@ -149,6 +155,7 @@ const InvoiceList = () => {
         return;
       }
       try {
+        setLoadingJobs(true);
         const response = await jobService.getAll({ per_page: 100, page: 1 });
         const data = Array.isArray(response?.data) ? response.data : [];
         const filtered = data.filter((job) => {
@@ -166,6 +173,8 @@ const InvoiceList = () => {
       } catch (error) {
         showToast('Failed to load jobs for selected employee.', 'error');
         setJobs([]);
+      } finally {
+        setLoadingJobs(false);
       }
     };
     fetchJobsForEmployee();
@@ -242,6 +251,22 @@ const InvoiceList = () => {
         onBackToList={() => setPreviewInvoiceId(null)}
         invoiceId={previewInvoiceId}
       />
+    );
+  }
+
+  // Show page loader during initial data load
+  if (loadingEmployees) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#f4f6fb' }}>
+        <PageHeader
+          breadcrumb={[
+            { label: 'Dashboard', path: '/dashboard' },
+            { label: 'Invoices', current: true },
+          ]}
+          title="Invoices"
+        />
+        <PageLoader message="Loading invoices..." size="lg" />
+      </Box>
     );
   }
 

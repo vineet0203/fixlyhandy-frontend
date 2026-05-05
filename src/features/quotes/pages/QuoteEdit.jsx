@@ -7,7 +7,7 @@ import { useClients } from '../../clients/hooks/useClients';
 import { useToast } from '../../../components/common/ToastProvider';
 import PageHeader from '../../../components/common/PageHeader';
 import QuoteForm from '../components/QuoteForm/QuoteForm';
-import Loader from '../../../components/common/Loader/Loader';
+import PageLoader from '../../../components/common/Loader/PageLoader';
 import CustomButton from '../../../components/common/CustomButton';
 
 const QuoteEdit = () => {
@@ -120,9 +120,7 @@ const QuoteEdit = () => {
   // Show loader while fetching
   if (isFetching) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '64vh' }}>
-        <Loader size="lg" />
-      </Box>
+      <PageLoader message="Loading quote data..." size="lg" />
     );
   }
 

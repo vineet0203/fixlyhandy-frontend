@@ -4,6 +4,7 @@ import { Avatar, Box, Button, TextField, Typography, FormControl, Select, MenuIt
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import PageHeader from '../../components/common/PageHeader';
+import PageLoader from '../../components/common/Loader/PageLoader';
 import invoiceService from './services/invoiceService';
 import clientService from '../../features/clients/services/clientService';
 import { mapInvoiceApiToPreviewData } from './utils/invoiceMappers';
@@ -260,7 +261,7 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
   if (loading) {
     return (
       <Box className="invoice-preview-page">
-        <Typography sx={{ p: 3 }}>Loading invoice preview...</Typography>
+        <PageLoader message="Loading invoice preview..." size="lg" />
       </Box>
     );
   }

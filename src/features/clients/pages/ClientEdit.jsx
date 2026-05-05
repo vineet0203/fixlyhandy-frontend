@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useClients } from '../hooks/useClients';
 import { useToast } from '../../../components/common/ToastProvider';
 import PageHeader from '../../../components/common/PageHeader';
-import Loader from '../../../components/common/Loader/Loader';
+import PageLoader from '../../../components/common/Loader/PageLoader';
 import ClientForm from '../components/ClientForm/ClientForm';
 
 const ClientEdit = () => {
@@ -53,9 +53,7 @@ const ClientEdit = () => {
   // Show loader while fetching
   if (isFetching) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader size="lg" />
-      </div>
+      <PageLoader message="Loading customer data..." size="lg" />
     );
   }
 

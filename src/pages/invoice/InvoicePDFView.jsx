@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, Typography } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import invoiceService from './services/invoiceService';
+import PageLoader from '../../components/common/Loader/PageLoader';
 import { mapInvoiceApiToPreviewData } from './utils/invoiceMappers';
 import html2pdf from 'html2pdf.js';
 
@@ -41,7 +42,7 @@ const InvoicePDFView = () => {
   if (loading) {
     return (
       <Box className="invoice-pdf-page">
-        <Typography sx={{ p: 3 }}>Loading invoice PDF...</Typography>
+        <PageLoader message="Loading invoice PDF..." size="lg" />
       </Box>
     );
   }

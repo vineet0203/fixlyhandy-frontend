@@ -1,10 +1,11 @@
 // src/pages/Jobs/JobDetails.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Grid, CircularProgress, Box, Typography, Button } from '@mui/material';
+import { Grid, Box, Typography, Button } from '@mui/material';
 import { useToast } from '../../../components/common/ToastProvider';
 import { useJobs } from '../../../features/jobs/hooks/useJobs';
 import PageHeader from '../../../components/common/PageHeader';
+import PageLoader from '../../../components/common/Loader/PageLoader';
 import JobActionMenu from '../components/JobView/JobActionMenu';
 import JobDetailsSection from '../components/JobView/JobDetailsSection';
 import AttachmentsSection from '../components/JobView/AttachmentsSection';
@@ -222,9 +223,7 @@ const JobDetails = () => {
 
   if (loading && !currentJob) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-        <CircularProgress />
-      </Box>
+      <PageLoader message="Loading job details..." size="lg" />
     );
   }
 
