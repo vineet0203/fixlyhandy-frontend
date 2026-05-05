@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Box, Button, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, TextField, Typography, FormControl, Select, MenuItem } from '@mui/material';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import PageHeader from '../../components/common/PageHeader';
 import invoiceService from './services/invoiceService';
+import clientService from '../../features/clients/services/clientService';
 import { mapInvoiceApiToPreviewData } from './utils/invoiceMappers';
 import { useToast } from '../../components/common/ToastProvider';
 
@@ -16,6 +17,8 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
   const [editableItems, setEditableItems] = useState([]);
   const [recipientEmail, setRecipientEmail] = useState('');
   const [savingItems, setSavingItems] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClientId, setSelectedClientId] = useState('');
   const [sendingInvoice, setSendingInvoice] = useState(false);
   const [actionMessage, setActionMessage] = useState('');
   const rowJobNameRefs = useRef([]);
@@ -38,7 +41,17 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
       }
     };
 
+    const fetchClients = async () => {
+      try {
+        const response = await clientService.getAll({ per_page: 100, page: 1 });
+        setClients(response.data || []);
+      } catch (error) {
+        console.error('Failed to load clients', error);
+      }
+    };
+
     fetchInvoice();
+    fetchClients();
   }, [invoiceId]);
 
   useEffect(() => {
@@ -57,6 +70,9 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
         vat: Number(item?.vat || 0),
       })),
     );
+    if (invoice.client_id || invoice.client?.id) {
+      setSelectedClientId(invoice.client_id || invoice.client?.id);
+    }
   }, [invoice]);
 
   const {
@@ -171,6 +187,7 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
       setActionMessage('');
 
       const payload = {
+        client_id: selectedClientId || null,
         items: editableItems.map((item) => ({
           job_id: item.job_id === '' ? null : toNumber(item.job_id),
           job_name: item.job_name,
@@ -274,13 +291,27 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
               <Avatar src={customer.avatar} className="invoice-customer-avatar">
                 {customer.name.charAt(0)}
               </Avatar>
-              <Box className="invoice-customer-meta">
-                <Typography className="invoice-customer-name">
-                  {customer.name}
-                </Typography>
-                <Typography className="invoice-customer-line">{customer.address}</Typography>
-                <Typography className="invoice-customer-line">{customer.contact}</Typography>
-              </Box>
+              {invoice?.client ? (
+                <Box className="invoice-customer-meta">
+                  <Typography className="invoice-customer-name">
+                    {customer.name}
+                  </Typography>
+                  <Typography className="invoice-customer-line">{customer.address}</Typography>
+                  <Typography className="invoice-customer-line">{customer.contact}</Typography>
+                </Box>
+              ) : (
+                <Box className="invoice-customer-meta" sx={{ width: 250 }}>
+                  <Typography className="invoice-customer-name" sx={{ mb: 1, fontSize: 14 }}>
+                    Select Client
+                  </Typography>
+                  <FormControl fullWidth size="small" sx={{ mb: 1 }}>
+                    <Select value={selectedClientId || ''} onChange={(e) => setSelectedClientId(e.target.value)} displayEmpty>
+                      <MenuItem value="" disabled>Select a client...</MenuItem>
+                      {clients.map(c => <MenuItem key={c.id} value={c.id}>{c.name || c.business_name || (c.first_name + ' ' + c.last_name)}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                </Box>
+              )}
             </Box>
 
             <Box className="invoice-header-right">

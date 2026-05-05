@@ -10,6 +10,7 @@ const InvoicePDFView = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const invoiceId = location.state?.invoiceId || location.state?.invoiceData?.id;
+  const autoDownload = location.state?.autoDownload || false;
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
@@ -27,6 +28,7 @@ const InvoicePDFView = () => {
         setLoading(true);
         const data = await invoiceService.getById(invoiceId);
         setInvoice(data);
+        if (autoDownload) { setTimeout(() => { document.querySelector(".invoice-pdf-print-btn")?.click(); }, 1500); }
       } catch (error) {
         setInvoice(null);
       } finally {
