@@ -456,7 +456,14 @@ const InvoiceList = () => {
                     InputLabelProps={{ shrink: true }}
                     value={jobFromDate}
                     onChange={e => setJobFromDate(e.target.value)}
-                    sx={{ width: 140, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    sx={{
+                      width: 140,
+                      '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                      '& .MuiInputBase-input': {
+                        color: jobFromDate ? 'inherit' : 'transparent',
+                        '&:focus': { color: 'inherit' }
+                      }
+                    }}
                   />
                   <TextField
                     type="date"
@@ -467,7 +474,14 @@ const InvoiceList = () => {
                     InputLabelProps={{ shrink: true }}
                     value={jobToDate}
                     onChange={e => setJobToDate(e.target.value)}
-                    sx={{ width: 140, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    sx={{
+                      width: 140,
+                      '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                      '& .MuiInputBase-input': {
+                        color: jobToDate ? 'inherit' : 'transparent',
+                        '&:focus': { color: 'inherit' }
+                      }
+                    }}
                   />
                   <FormControl size="small" sx={{ width: 140 }}>
                     <Select value={jobStatus} onChange={e => setJobStatus(e.target.value)} sx={{ borderRadius: 2 }}>
@@ -632,7 +646,14 @@ const InvoiceList = () => {
                 InputLabelProps={{ shrink: true }}
                 value={historyFromDate}
                 onChange={e => setHistoryFromDate(e.target.value)}
-                sx={{ width: 140, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                sx={{
+                  width: 140,
+                  '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                  '& .MuiInputBase-input': {
+                    color: historyFromDate ? 'inherit' : 'transparent',
+                    '&:focus': { color: 'inherit' }
+                  }
+                }}
               />
               <TextField
                 type="date"
@@ -643,7 +664,14 @@ const InvoiceList = () => {
                 InputLabelProps={{ shrink: true }}
                 value={historyToDate}
                 onChange={e => setHistoryToDate(e.target.value)}
-                sx={{ width: 140, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                sx={{
+                  width: 140,
+                  '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                  '& .MuiInputBase-input': {
+                    color: historyToDate ? 'inherit' : 'transparent',
+                    '&:focus': { color: 'inherit' }
+                  }
+                }}
               />
               <Button 
                 variant="contained" 
