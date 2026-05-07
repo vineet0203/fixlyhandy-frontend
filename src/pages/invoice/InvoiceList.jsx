@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
+  Tooltip,
   Button,
   FormControl,
   MenuItem,
@@ -32,6 +33,7 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DownloadIcon from '@mui/icons-material/Download';
 import SendIcon from '@mui/icons-material/Send';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
@@ -126,6 +128,7 @@ const InvoiceList = () => {
 
   const [historyPage, setHistoryPage] = useState(0);
   const [historyRowsPerPage, setHistoryRowsPerPage] = useState(10);
+  const [reasonDrawer, setReasonDrawer] = useState({ open: false, reason: '', invoice: '' });
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -746,7 +749,8 @@ const InvoiceList = () => {
                     <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Customer</TableCell>
                     <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Date</TableCell>
                     <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Amount</TableCell>
-                    <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Status</TableCell>
+                    <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Invoice Status</TableCell>
+                    <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Customer Status</TableCell>
                     <TableCell sx={{ color: '#64748b', fontWeight: 600 }} align="right">
                       Actions
                     </TableCell>
@@ -771,6 +775,30 @@ const InvoiceList = () => {
                         <TableCell sx={{ fontWeight: 600 }}>${Number(inv.totals?.grand_total || 0).toFixed(2)}</TableCell>
                         <TableCell>
                           <Chip label={inv.status || 'draft'} size="small" sx={{ bgcolor: getStatusChipSx(inv.status).bg, color: getStatusChipSx(inv.status).color, fontWeight: 700, fontSize: 11, height: 22, textTransform: 'capitalize', border: `1px solid ${getStatusChipSx(inv.status).color}30`, '& .MuiChip-label': { px: 1.2 } }} />
+                        </TableCell>
+                        <TableCell>
+                          {inv.customer_status ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Chip
+                                label={inv.customer_status.charAt(0).toUpperCase() + inv.customer_status.slice(1)}
+                                size="small"
+                                sx={{
+                                  bgcolor: inv.customer_status === 'accepted' ? '#f0fdf4' : (inv.customer_status === 'rejected' ? '#fef2f2' : '#f8fafc'),
+                                  color: inv.customer_status === 'accepted' ? '#16a34a' : (inv.customer_status === 'rejected' ? '#dc2626' : '#64748b'),
+                                  fontWeight: 700, fontSize: 11, height: 22,
+                                  border: `1px solid ${inv.customer_status === 'accepted' ? '#16a34a' : (inv.customer_status === 'rejected' ? '#dc2626' : '#64748b')}30`,
+                                  '& .MuiChip-label': { px: 1.2 }
+                                }}
+                              />
+                              {inv.customer_status === 'rejected' && inv.reject_reason && (
+                                <IconButton size="small" onClick={() => setReasonDrawer({ open: true, reason: inv.reject_reason, invoice: inv.invoice_number })} sx={{ color: '#dc2626', p: 0.3 }}>
+                                  <InfoOutlinedIcon sx={{ fontSize: 15 }} />
+                                </IconButton>
+                              )}
+                            </Box>
+                          ) : (
+                            <Chip label="Pending" size="small" sx={{ bgcolor: '#f8fafc', color: '#64748b', fontWeight: 700, fontSize: 11, height: 22, border: '1px solid #64748b30', '& .MuiChip-label': { px: 1.2 } }} />
+                          )}
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
@@ -812,6 +840,21 @@ const InvoiceList = () => {
           </Paper>
         )}
       </Box>
+
+      {reasonDrawer.open && (
+        <Box onClick={() => setReasonDrawer({ open: false, reason: '', invoice: '' })} sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.4)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box onClick={e => e.stopPropagation()} sx={{ width: 420, bgcolor: '#fff', borderRadius: 3, boxShadow: '0 20px 40px rgba(0,0,0,0.2)', p: 3, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: 16, color: '#0f172a' }}>Rejection Reason</Typography>
+              <IconButton size="small" onClick={() => setReasonDrawer({ open: false, reason: '', invoice: '' })}><ClearIcon fontSize="small" /></IconButton>
+            </Box>
+            <Typography sx={{ fontSize: 12, color: '#94a3b8', mb: 2, fontFamily: 'monospace' }}>{reasonDrawer.invoice}</Typography>
+            <Box sx={{ bgcolor: '#fef2f2', border: '1px solid #fecaca', borderRadius: 2, p: 2, flex: 1 }}>
+              <Typography sx={{ fontSize: 14, color: '#dc2626', lineHeight: 1.6 }}>{reasonDrawer.reason}</Typography>
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
