@@ -176,17 +176,31 @@ const InvoiceList = () => {
           _t: new Date().getTime()
         });
         const data = Array.isArray(response?.data) ? response.data : [];
-        const filtered = data.filter((job) => {
+        
+        // Only consider non-invoiced jobs
+        const activeJobs = data.filter(job => !job.is_invoiced);
+
+        const filtered = activeJobs.filter((job) => {
           const latestEmployeeId = Number(job?.latest_assignment?.employee_id || 0);
           return latestEmployeeId === Number(selectedEmpId);
         });
+        
         setJobs(filtered);
+
+        // Calculate active job counts for all employees
+        const jobCounts = {};
+        activeJobs.forEach((job) => {
+          const empId = Number(job?.latest_assignment?.employee_id || 0);
+          if (empId) {
+            jobCounts[empId] = (jobCounts[empId] || 0) + 1;
+          }
+        });
+
         setEmployees(prev =>
-          prev.map(emp =>
-            emp.id === Number(selectedEmpId)
-              ? { ...emp, jobCount: filtered.length }
-              : emp
-          )
+          prev.map(emp => ({
+            ...emp,
+            jobCount: jobCounts[emp.id] || 0
+          }))
         );
       } catch (error) {
         showToast('Failed to load jobs for selected employee.', 'error');
@@ -246,7 +260,6 @@ const InvoiceList = () => {
       payment_deadline: paymentDeadline,
       mileage: 0,
       other_expense: 0,
-      vat: 0,
       note: '',
       terms_conditions: '',
       billing_address: {

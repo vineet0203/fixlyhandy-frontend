@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, Button, Tabs, Tab, TextField, InputAdornment,
-  Menu, MenuItem, IconButton, Paper,
+  Box, Typography, Button, Tabs, Tab, Menu, MenuItem, Paper, CircularProgress, Snackbar, Alert,
 } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Download, Filter, Search, FileText, CalendarDays,
+  Download, Filter, FileText, CalendarDays,
   ChevronDown, Printer, FileSpreadsheet, FileImage,
 } from 'lucide-react';
 
@@ -21,88 +20,142 @@ import {
   TopCustomersPanel, TopEmployeesPanel,
   RevenueSummaryPanel, RecentActivitiesPanel,
 } from './components/SidePanels';
-import { tabOptions } from './data/reportsDummyData';
+import { tabOptions, ReportsDataProvider, useReportsData } from './data/reportsDummyData.jsx';
+import * as exportService from './services/exportService';
 
-const ReportsPage = () => {
+// Tab Imports
+import OverviewTab from './tabs/OverviewTab';
+import CustomerReportTab from './tabs/CustomerReportTab';
+import EmployeeReportTab from './tabs/EmployeeReportTab';
+import RevenueTab from './tabs/RevenueTab';
+import InvoiceReportTab from './tabs/InvoiceReportTab';
+import JobStatusTab from './tabs/JobStatusTab';
+import ExpensesTab from './tabs/ExpensesTab';
+import PerformanceTab from './tabs/PerformanceTab';
+
+const stagger = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+
+const ReportsPageContent = () => {
+  const { data } = useReportsData();
   const [activeTab, setActiveTab] = useState('overview');
   const [activeFilter, setActiveFilter] = useState('Monthly');
   const [exportAnchor, setExportAnchor] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  // Filter States
   const [customerFilter, setCustomerFilter] = useState('All Customers');
   const [employeeFilter, setEmployeeFilter] = useState('All Employees');
   const [jobStatusFilter, setJobStatusFilter] = useState('All Status');
   const [paymentFilter, setPaymentFilter] = useState('All Status');
   const [serviceFilter, setServiceFilter] = useState('All Services');
 
+  const filters = {
+    activeFilter, setActiveFilter,
+    customerFilter, setCustomerFilter,
+    employeeFilter, setEmployeeFilter,
+    jobStatusFilter, setJobStatusFilter,
+    paymentFilter, setPaymentFilter,
+    serviceFilter, setServiceFilter,
+  };
+
+  const handleExport = async (type) => {
+    setExportAnchor(null);
+    setIsExporting(true);
+    const elementId = 'reports-content';
+    const filename = `TrackJobs_${activeTab}_Report`;
+
+    try {
+      switch (type) {
+        case 'pdf':
+          await exportService.exportAsPDF(elementId, filename);
+          break;
+        case 'excel':
+          exportService.exportAsExcel(data, filename);
+          break;
+        case 'image':
+          await exportService.exportAsImage(elementId, filename);
+          break;
+        case 'print':
+          await exportService.printReport(elementId);
+          break;
+        default: break;
+      }
+      setSnackbar({ open: true, message: `Report exported as ${type.toUpperCase()} successfully!`, severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: `Export failed: ${err.message}`, severity: 'error' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f4f6fb', pb: 5 }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f4f6fb', pb: 6 }}>
       {/* Header */}
       <Box sx={{ px: { xs: 2, md: 4 }, pt: 0 }}>
         <PageHeader
           breadcrumb={[
             { label: 'Dashboard', path: '/dashboard' },
             { label: 'Reports', current: true },
-            { label: 'Overview', current: true },
+            { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1), current: true },
           ]}
           title="Reports & Analytics"
           actions={
             <>
-              {/* Date Range Picker */}
               <Button
                 variant="outlined" size="small"
                 startIcon={<CalendarDays size={15} />}
                 endIcon={<ChevronDown size={14} />}
                 sx={{
                   textTransform: 'none', fontSize: 13, fontWeight: 600,
-                  borderRadius: 2, borderColor: '#e2e8f0', color: '#475569',
+                  borderRadius: '10px', borderColor: '#e2e8f0', color: '#475569',
                   bgcolor: '#fff', px: 2, height: 38,
                   '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' },
                 }}
               >
                 May 01, 2024 - May 31, 2024
               </Button>
-
-              {/* Advanced Filters */}
-              <Button
-                variant="outlined" size="small"
-                startIcon={<Filter size={15} />}
-                sx={{
-                  textTransform: 'none', fontSize: 13, fontWeight: 600,
-                  borderRadius: 2, borderColor: '#e2e8f0', color: '#475569',
-                  bgcolor: '#fff', px: 2, height: 38,
-                  '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' },
-                }}
-              >
-                Advanced Filters
-              </Button>
-
-              {/* Export */}
               <Button
                 variant="contained" size="small"
-                startIcon={<Download size={15} />}
+                disabled={isExporting}
+                startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <Download size={15} />}
                 endIcon={<ChevronDown size={14} />}
                 onClick={e => setExportAnchor(e.currentTarget)}
                 sx={{
-                  textTransform: 'none', fontSize: 13, fontWeight: 600,
-                  borderRadius: 2, bgcolor: '#10b981', px: 2, height: 38,
-                  boxShadow: 'none',
-                  '&:hover': { bgcolor: '#059669', boxShadow: 'none' },
+                  textTransform: 'none', fontSize: 13, fontWeight: 700,
+                  borderRadius: '10px', bgcolor: '#10b981', px: 2, height: 38,
+                  boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
+                  '&:hover': { bgcolor: '#059669' },
                 }}
               >
-                Export
+                {isExporting ? 'Exporting...' : 'Export'}
               </Button>
               <Menu
                 anchorEl={exportAnchor} open={Boolean(exportAnchor)}
                 onClose={() => setExportAnchor(null)}
-                PaperProps={{ sx: { borderRadius: 2, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: 180 } }}
+                PaperProps={{
+                  sx: {
+                    borderRadius: '12px', boxShadow: '0 12px 40px rgba(15,23,42,0.12)', 
+                    minWidth: 200, mt: 1, p: 0.5,
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
                 {[
-                  { label: 'Export as PDF', icon: <FileText size={15} /> },
-                  { label: 'Export as Excel', icon: <FileSpreadsheet size={15} /> },
-                  { label: 'Export as Image', icon: <FileImage size={15} /> },
-                  { label: 'Print Report', icon: <Printer size={15} /> },
+                  { label: 'Export as PDF', icon: <FileText size={16} />, type: 'pdf' },
+                  { label: 'Export as Excel', icon: <FileSpreadsheet size={16} />, type: 'excel' },
+                  { label: 'Export as Image', icon: <FileImage size={16} />, type: 'image' },
+                  { label: 'Print Report', icon: <Printer size={16} />, type: 'print' },
                 ].map((item, i) => (
-                  <MenuItem key={i} onClick={() => setExportAnchor(null)}
-                    sx={{ fontSize: 13, color: '#475569', gap: 1.5, py: 1 }}>
+                  <MenuItem key={i} onClick={() => handleExport(item.type)} sx={{
+                    fontSize: 13, color: '#475569', gap: 1.5, py: 1.2, px: 2,
+                    borderRadius: '8px', fontWeight: 500,
+                    '&:hover': { bgcolor: '#f0f4ff', color: '#2563eb' },
+                  }}>
                     {item.icon} {item.label}
                   </MenuItem>
                 ))}
@@ -113,95 +166,61 @@ const ReportsPage = () => {
       </Box>
 
       <Box sx={{ px: { xs: 2, md: 4 } }}>
-        {/* Tabs */}
-        <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid #e8edf5', bgcolor: '#fff', mb: 3, overflow: 'hidden' }}>
+        <Paper elevation={0} sx={{
+          borderRadius: '14px', border: '1px solid rgba(226,232,240,0.8)',
+          bgcolor: '#fff', mb: 3, overflow: 'hidden',
+        }}>
           <Tabs
             value={activeTab}
             onChange={(e, v) => setActiveTab(v)}
             variant="scrollable" scrollButtons="auto"
             sx={{
-              px: 1, minHeight: 46,
+              px: 1.5, minHeight: 48,
               '& .MuiTab-root': {
                 textTransform: 'none', fontWeight: 600, fontSize: 13,
-                color: '#64748b', minHeight: 46, px: 2.5,
+                color: '#94a3b8', minHeight: 48, px: 2.5,
               },
-              '& .Mui-selected': { color: '#2563eb !important' },
-              '& .MuiTabs-indicator': { backgroundColor: '#2563eb', height: 3, borderRadius: '3px 3px 0 0' },
+              '& .Mui-selected': { color: '#2563eb !important', fontWeight: 700 },
+              '& .MuiTabs-indicator': { backgroundColor: '#2563eb', height: 3 },
             }}
           >
             {tabOptions.map(t => <Tab key={t.key} label={t.label} value={t.key} />)}
           </Tabs>
         </Paper>
 
-        {/* Quick Filters */}
-        <QuickFilters
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-          filters={{
-            customerFilter, setCustomerFilter,
-            employeeFilter, setEmployeeFilter,
-            jobStatusFilter, setJobStatusFilter,
-            paymentFilter, setPaymentFilter,
-            serviceFilter, setServiceFilter,
-          }}
-        />
-
-        {/* KPI Cards */}
-        <ReportsKpiCards />
-
-        {/* Charts Grid */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-          <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', xl: '1.2fr 0.8fr 1fr 1fr' },
-            gap: 2.5, mb: 3,
-          }}>
-            <Box sx={{ gridColumn: { xs: '1', xl: '1' } }}>
-              <RevenueChart />
-            </Box>
-            <Box sx={{ gridColumn: { xs: '1', xl: '2' } }}>
-              <JobStatusChart />
-            </Box>
-            <Box sx={{ gridColumn: { xs: '1', xl: '3' } }}>
-              <EmployeePerformanceChart />
-            </Box>
-            <Box sx={{ gridColumn: { xs: '1', xl: '4' } }}>
-              <InvoiceAnalyticsChart />
-            </Box>
-          </Box>
-        </motion.div>
-
-        {/* Table + Side Panels */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
-          <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 340px' },
-            gap: 2.5, mb: 3,
-          }}>
-            {/* Reports Table */}
-            <ReportsTable />
-
-            {/* Side Panels */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-              <TopCustomersPanel />
-              <TopEmployeesPanel />
-            </Box>
-          </Box>
-        </motion.div>
-
-        {/* Bottom Panels */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.45 }}>
-          <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-            gap: 2.5,
-          }}>
-            <RevenueSummaryPanel />
-            <RecentActivitiesPanel />
-          </Box>
-        </motion.div>
+        <Box id="reports-content">
+          <motion.div variants={stagger} initial="hidden" animate="visible">
+            {activeTab === 'overview' && <OverviewTab filters={filters} />}
+            {activeTab === 'customer' && <CustomerReportTab filters={filters} />}
+            {activeTab === 'employee' && <EmployeeReportTab filters={filters} />}
+            {activeTab === 'revenue' && <RevenueTab filters={filters} />}
+            {activeTab === 'invoice' && <InvoiceReportTab filters={filters} />}
+            {activeTab === 'jobs' && <JobStatusTab filters={filters} />}
+            {activeTab === 'expense' && <ExpensesTab filters={filters} />}
+            {activeTab === 'performance' && <PerformanceTab filters={filters} />}
+          </motion.div>
+        </Box>
       </Box>
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%', borderRadius: '12px' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
+  );
+};
+
+const ReportsPage = () => {
+  return (
+    <ReportsDataProvider>
+      <ReportsPageContent />
+    </ReportsDataProvider>
   );
 };
 

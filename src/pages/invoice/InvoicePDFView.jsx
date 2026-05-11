@@ -140,7 +140,7 @@ const InvoicePDFView = () => {
     whiteSpace: 'normal',
   };
 
-  const colWidths = ['5%', '10%', '24%', '10%', '13%', '13%', '8%', '17%'];
+  const colWidths = ['5%', '10%', '24%', '15%', '15%', '14%', '17%'];
 
   return (
     <Box className="invoice-pdf-page">
@@ -216,7 +216,6 @@ const InvoicePDFView = () => {
                   <th style={{ ...thStyle, textAlign: 'right' }}>MILEAGE</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>OTHER EXP</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>AMOUNT</th>
-                  <th style={{ ...thStyle, textAlign: 'right' }}>VAT</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>FINAL AMT</th>
                 </tr>
               </thead>
@@ -229,7 +228,6 @@ const InvoicePDFView = () => {
                     <td style={{ ...tdStyle, textAlign: 'right' }}>{row.mileage}</td>
                     <td style={{ ...tdStyle, textAlign: 'right' }}>{row.otherExpense}</td>
                     <td style={{ ...tdStyle, textAlign: 'right' }}>{row.amount}</td>
-                    <td style={{ ...tdStyle, textAlign: 'right' }}>{row.vat}</td>
                     <td style={{ ...tdStyle, textAlign: 'right', borderBottom: index === invoiceRows.length - 1 ? '2px solid #e5e7eb' : '1px solid #e5e7eb' }}>{row.finalAmount}</td>
                   </tr>
                 ))}
@@ -243,7 +241,6 @@ const InvoicePDFView = () => {
               { label: 'Subtotal:', value: totals.subtotal },
               { label: 'Mileage:', value: totals.mileage },
               { label: 'Other Expense:', value: totals.otherExpense },
-              { label: 'Vat', value: totals.vat },
             ].map((item) => (
               <div key={item.label} style={{ display: 'flex', gap: '48px', width: '280px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '600', color: '#6b7280', flex: 1 }}>{item.label}</span>

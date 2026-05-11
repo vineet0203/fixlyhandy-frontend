@@ -5,8 +5,6 @@ export const toCurrency = (value) => {
 
 const round2 = (value) => Number(Number(value || 0).toFixed(2));
 
-const calculateVatValue = (amount, vatPercent) => round2((Number(amount || 0) * Number(vatPercent || 0)) / 100);
-
 export const mapInvoiceApiToPreviewData = (invoice) => {
   const employee = invoice?.employee || {};
   const items = invoice?.items || [];
@@ -18,7 +16,6 @@ export const mapInvoiceApiToPreviewData = (invoice) => {
     mileage: toCurrency(item.mileage),
     otherExpense: toCurrency(item.other_expense),
     amount: toCurrency(item.amount),
-    vat: toCurrency(calculateVatValue(item.amount, item.vat)),
     finalAmount: toCurrency(round2(item.final_amount)),
   }));
 
@@ -28,7 +25,6 @@ export const mapInvoiceApiToPreviewData = (invoice) => {
   const fallbackSubtotal = round2(items.reduce((sum, item) => sum + Number(item.amount || 0), 0));
   const fallbackMileage = round2(items.reduce((sum, item) => sum + Number(item.mileage || 0), 0));
   const fallbackOtherExpense = round2(items.reduce((sum, item) => sum + Number(item.other_expense || 0), 0));
-  const fallbackVatValue = round2(items.reduce((sum, item) => sum + calculateVatValue(item.amount, item.vat), 0));
   const fallbackGrandTotal = round2(items.reduce((sum, item) => sum + Number(item.final_amount || 0), 0));
 
   return {
@@ -53,17 +49,16 @@ export const mapInvoiceApiToPreviewData = (invoice) => {
     note: invoice?.note || '-',
     terms: invoice?.terms_conditions || '-',
     summary: {
-      weeklyAmount: `${toCurrency(totals?.subtotal ?? fallbackSubtotal)} Incl. VAT`,
+      weeklyAmount: `${toCurrency(totals?.subtotal ?? fallbackSubtotal)}`,
       milage: toCurrency(totals?.mileage ?? fallbackMileage),
       otherExpense: toCurrency(totals?.other_expense ?? fallbackOtherExpense),
-      total: `${toCurrency(totals?.grand_total ?? fallbackGrandTotal)} Incl. VAT`,
+      total: `${toCurrency(totals?.grand_total ?? fallbackGrandTotal)}`,
     },
     rows,
     totals: {
       subtotal: toCurrency(totals?.subtotal ?? fallbackSubtotal),
       mileage: toCurrency(totals?.mileage ?? fallbackMileage),
       otherExpense: toCurrency(totals?.other_expense ?? fallbackOtherExpense),
-      vat: toCurrency(totals?.vat_total ?? fallbackVatValue),
       total: toCurrency(totals?.grand_total ?? fallbackGrandTotal),
     },
   };
@@ -77,7 +72,6 @@ export const mapJobToInvoiceRow = (job) => {
     mileage: 0,
     other_expense: 0,
     amount,
-    vat: 0,
     final_amount: amount,
   };
 };

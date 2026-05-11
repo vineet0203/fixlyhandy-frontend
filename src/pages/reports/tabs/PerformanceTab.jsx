@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from 'react';
+import { Box, Grid, Skeleton } from '@mui/material';
+import { motion } from 'framer-motion';
+import axios from 'axios';
+import QuickFilters from '../components/QuickFilters';
+import ReportsKpiCards from '../components/ReportsKpiCards';
+import EmployeePerformanceChart from '../components/EmployeePerformanceChart';
+import { RecentActivitiesPanel } from '../components/SidePanels';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
+const PerformanceTab = ({ filters }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/v1/vendors/reports/overview', {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal
+        });
+        setData(response.data.data);
+        setError(null);
+      } catch (err) {
+        if (err.name !== 'CanceledError') {
+          setError(err.response?.data?.message || 'Failed to fetch performance data');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => controller.abort();
+  }, [filters.activeFilter]);
+
+  if (loading) return <Box sx={{ p: 4 }}><Skeleton variant="rectangular" height={500} sx={{ borderRadius: '16px' }} /></Box>;
+
+  return (
+    <Box>
+      <motion.div variants={fadeUp}>
+        <QuickFilters filters={filters} />
+      </motion.div>
+
+      <motion.div variants={fadeUp}>
+        <ReportsKpiCards data={data?.kpi_stats} />
+      </motion.div>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} lg={7}>
+          <motion.div variants={fadeUp}>
+            <EmployeePerformanceChart data={data?.employee_performance} />
+          </motion.div>
+        </Grid>
+        
+        <Grid item xs={12} lg={5}>
+          <motion.div variants={fadeUp}>
+            <RecentActivitiesPanel data={data?.recent_activities} />
+          </motion.div>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
+export default PerformanceTab;

@@ -68,7 +68,6 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
         mileage: Number(item?.mileage || 0),
         other_expense: Number(item?.other_expense || 0),
         amount: Number(item?.amount || 0),
-        vat: Number(item?.vat || 0),
       })),
     );
     if (invoice.client_id || invoice.client?.id) {
@@ -96,18 +95,11 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
 
   const round2 = (value) => Number(Number(value || 0).toFixed(2));
 
-  const calculateVatValue = (item) => {
-    const amount = toNumber(item.amount);
-    const vatPercent = toNumber(item.vat);
-    return round2((amount * vatPercent) / 100);
-  };
-
   const calculateFinalAmount = (item) => {
     const amount = toNumber(item.amount);
     const mileageValue = toNumber(item.mileage);
     const otherExpense = toNumber(item.other_expense);
-    const vatValue = calculateVatValue(item);
-    return round2(amount + mileageValue + otherExpense + vatValue);
+    return round2(amount + mileageValue + otherExpense);
   };
 
   const handleItemChange = (index, field, value) => {
@@ -135,7 +127,6 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
         mileage: 0,
         other_expense: 0,
         amount: 0,
-        vat: 0,
       },
     ]));
   };
@@ -163,14 +154,12 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
     const subtotal = round2(editableItems.reduce((sum, item) => sum + toNumber(item.amount), 0));
     const mileageTotal = round2(editableItems.reduce((sum, item) => sum + toNumber(item.mileage), 0));
     const otherExpenseTotal = round2(editableItems.reduce((sum, item) => sum + toNumber(item.other_expense), 0));
-    const vatTotal = round2(editableItems.reduce((sum, item) => sum + calculateVatValue(item), 0));
     const grandTotal = round2(editableItems.reduce((sum, item) => sum + calculateFinalAmount(item), 0));
 
     return {
       subtotal,
       mileageTotal,
       otherExpenseTotal,
-      vatTotal,
       grandTotal,
     };
   }, [editableItems]);
@@ -195,7 +184,6 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
           mileage: round2(toNumber(item.mileage)),
           other_expense: round2(toNumber(item.other_expense)),
           amount: round2(toNumber(item.amount)),
-          vat: round2(toNumber(item.vat)),
           final_amount: calculateFinalAmount(item),
         })),
       };
@@ -334,7 +322,6 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
                   <th>Mileage</th>
                   <th>Other Expense</th>
                   <th>Amount</th>
-                  <th>VAT</th>
                   <th>Final Amount</th>
                   <th>Action</th>
                 </tr>
@@ -387,15 +374,6 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
                       <TextField
                         value={item.amount}
                         onChange={(event) => handleItemChange(index, 'amount', event.target.value)}
-                        size="small"
-                        fullWidth
-                        className="invoice-cell-input"
-                      />
-                    </td>
-                    <td>
-                      <TextField
-                        value={item.vat}
-                        onChange={(event) => handleItemChange(index, 'vat', event.target.value)}
                         size="small"
                         fullWidth
                         className="invoice-cell-input"
@@ -469,7 +447,7 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
 
             <Box className="invoice-summary-row">
               <Typography className="invoice-summary-key">Weekly Amount</Typography>
-              <Typography className="invoice-summary-value">${formatCurrency(derivedTotals.subtotal)} Incl. VAT</Typography>
+              <Typography className="invoice-summary-value">${formatCurrency(derivedTotals.subtotal)}</Typography>
             </Box>
 
             <Box className="invoice-summary-row">
@@ -482,14 +460,9 @@ const InvoicePreview = ({ invoiceId, onBackToList }) => {
               <Typography className="invoice-summary-value">${formatCurrency(derivedTotals.otherExpenseTotal)}</Typography>
             </Box>
 
-            <Box className="invoice-summary-row">
-              <Typography className="invoice-summary-key">VAT</Typography>
-              <Typography className="invoice-summary-value">${formatCurrency(derivedTotals.vatTotal)}</Typography>
-            </Box>
-
             <Box className="invoice-summary-total-row">
               <Typography className="invoice-summary-key invoice-summary-total-key">Total</Typography>
-              <Box className="invoice-summary-total-badge">${formatCurrency(derivedTotals.grandTotal)} Incl. VAT</Box>
+              <Box className="invoice-summary-total-badge">${formatCurrency(derivedTotals.grandTotal)}</Box>
             </Box>
           </Box>
 
