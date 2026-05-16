@@ -19,3 +19,63 @@
 .reset-btn:hover {
   background: #FEE2E2;
 }
+
+.earning-amount {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.earning-card .chart-wrapper svg {
+  transition: opacity 0.4s ease;
+}
+.earning-card .chart-wrapper svg.loading {
+  opacity: 0.3;
+}
+
+/* Crew Status - new chip styles */
+.summary-chip.on_job     { background: #F0FDF4; }
+.summary-chip.on_job .chip-count { color: #16A34A; }
+.summary-chip.on_route   { background: #FFF7ED; }
+.summary-chip.on_route .chip-count { color: #C2410C; }
+.summary-chip.clocked_in { background: #EFF6FF; }
+.summary-chip.clocked_in .chip-count { color: #1D4ED8; }
+.summary-chip.offline    { background: #F8FAFC; }
+.summary-chip.offline .chip-count { color: #94A3B8; }
+
+/* Status dots for new statuses */
+.status-dot.on_job     { background: #22C55E; }
+.status-dot.on_route   { background: #F97316; }
+.status-dot.clocked_in { background: #3B82F6; }
+.status-dot.offline    { background: #94A3B8; }
+
+/* Pulse animation for on_job */
+.status-dot.on_job {
+  background: #22C55E;
+  box-shadow: 0 0 0 0 rgba(34,197,94,0.4);
+  animation: pulse-green 2s infinite;
+}
+@keyframes pulse-green {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+
+/* On Route pulse orange */
+.status-dot.on_route {
+  background: #F97316;
+  animation: pulse-orange 2s infinite;
+}
+@keyframes pulse-orange {
+  0%   { box-shadow: 0 0 0 0 rgba(249,115,22,0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(249,115,22,0); }
+  100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+}
+
+.schedule-card {
+  display: flex;
+  flex-direction: column;
+}
+.schedule-card .schedule-list {
+  flex: 1;
+}
+.schedule-card .card-footer {
+  margin-top: auto;
+}

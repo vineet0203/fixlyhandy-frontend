@@ -8,11 +8,30 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [range, setRange] = useState(null);
+  const [earningPeriod, setEarningPeriod] = useState('this_month');
+  const [earningOpen, setEarningOpen] = useState(false);
+  const [earningLoading, setEarningLoading] = useState(false);
+  const [displayAmount, setDisplayAmount] = useState('0.00');
+  const [displayChange, setDisplayChange] = useState('0%');
 
   const rangeParams = useMemo(() => {
+    const now = new Date();
+    if (earningPeriod === 'last_month') {
+      const start = new Date(now.getFullYear(), now.getMonth()-1, 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), 0);
+      return { earning_from: formatYmd(start), earning_to: formatYmd(end) };
+    }
+    if (earningPeriod === 'this_year') {
+      return { earning_from: now.getFullYear() + '-01-01', earning_to: now.getFullYear() + '-12-31' };
+    }
+    if (earningPeriod === 'this_month') {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(now.getFullYear(), now.getMonth()+1, 0);
+      return { earning_from: formatYmd(start), earning_to: formatYmd(end) };
+    }
     if (!range) return {};
     return { from: formatYmd(range.start), to: formatYmd(range.end) };
-  }, [range]);
+  }, [range, earningPeriod]);
 
   useEffect(() => {
     let mounted = true;
@@ -33,12 +52,40 @@ const Dashboard = () => {
     };
     fetchDashboard();
     return () => { mounted = false; };
-  }, [rangeParams]);
+  }, [rangeParams, earningPeriod]);
+
+  // Auto-refresh every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setData(prev => prev); // trigger re-fetch
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const stats = data?.stats || [];
   const todaySchedule = data?.todaySchedule || [];
   const teamStatus = data?.teamStatus || { summary: [], members: [] };
   const totalEarning = data?.totalEarning || { amount: '0.00', change: '0%', changeLabel: '' };
+  useEffect(() => {
+    if (totalEarning.amount) {
+      setEarningLoading(false);
+      const target = parseFloat(totalEarning.amount.replace(/,/g, ''));
+      const start = parseFloat(displayAmount.replace(/,/g, '')) || 0;
+      const duration = 800;
+      const steps = 40;
+      const increment = (target - start) / steps;
+      let current = start;
+      let step = 0;
+      const timer = setInterval(() => {
+        step++;
+        current += increment;
+        if (step >= steps) { current = target; clearInterval(timer); }
+        setDisplayAmount(current.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      }, duration / steps);
+      setDisplayChange(totalEarning.change);
+      return () => clearInterval(timer);
+    }
+  }, [totalEarning.amount]);
   const earningChart = data?.earningChart || [];
   const recentQuotes = data?.recentQuotes || [];
   const recentInvoices = data?.recentInvoices || [];
@@ -174,8 +221,8 @@ const Dashboard = () => {
         <div className="right-stack">
           <div className="card team-card">
             <div className="card-header">
-              <h3>Team Status</h3>
-              <span className="link">View all</span>
+              <h3>Crew Status</h3>
+              <Link className="link" to="/employees">View all</Link>
             </div>
             <div className="team-summary">
               {summary.map((item) => (
@@ -221,11 +268,27 @@ const Dashboard = () => {
           <div className="card earning-card">
             <div className="card-header">
               <h3>Total Earning</h3>
-              <button className="dropdown-pill">This Month v</button>
+              <div style={{position:'relative'}}>
+              <button className="dropdown-pill" onClick={() => setEarningOpen(o => !o)}>
+                {earningPeriod === 'this_month' ? 'This Month' : earningPeriod === 'last_month' ? 'Last Month' : 'This Year'} ▾
+              </button>
+              {earningOpen && (
+                <div style={{position:'absolute',right:0,top:'110%',background:'#fff',border:'1px solid #E2E8F0',borderRadius:8,boxShadow:'0 4px 16px rgba(0,0,0,0.1)',zIndex:100,minWidth:130}}>
+                  {[['this_month','This Month'],['last_month','Last Month'],['this_year','This Year']].map(([val,label]) => (
+                    <div key={val} onClick={() => { setEarningLoading(true); setEarningPeriod(val); setEarningOpen(false); }}
+                      style={{padding:'10px 16px',cursor:'pointer',fontSize:13,fontWeight:earningPeriod===val?600:400,color:earningPeriod===val?'#2563EB':'#374151',background:earningPeriod===val?'#EFF6FF':'transparent'}}>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="earning-amount">{formatCurrency(totalEarning.amount)}</div>
+            </div>
+            <div className="earning-amount" style={{transition:'opacity 0.3s', opacity: earningLoading ? 0.4 : 1}}>
+              {earningLoading ? '...' : '$' + displayAmount}
+            </div>
             <div className="earning-change">
-              <span className="trend-arrow">^</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15"/></svg>
               <span>{totalEarning.change}</span>
               <span className="trend-label">{totalEarning.changeLabel}</span>
             </div>
@@ -264,6 +327,7 @@ const Dashboard = () => {
         <div className="card list-card">
           <div className="card-header">
             <h3>Quote to Review</h3>
+              <Link className="link" to="/quotes">View all</Link>
           </div>
           <div className="list-body">
             {loading && Array.from({ length: 4 }).map((_, i) => (
@@ -290,6 +354,7 @@ const Dashboard = () => {
         <div className="card list-card">
           <div className="card-header">
             <h3>Create Invoice</h3>
+              <Link className="link" to="/invoices">View all</Link>
           </div>
           <div className="list-body">
             {loading && Array.from({ length: 4 }).map((_, i) => (
@@ -608,8 +673,9 @@ const formatStatus = (status) => {
 };
 
 const formatTeamStatus = (status) => {
-  if (status === 'ideal') return 'Ideal Sitting';
-  if (status === 'busy') return 'Busy';
+  if (status === 'on_job')     return 'On Job';
+  if (status === 'on_route')   return 'On Route';
+  if (status === 'clocked_in') return 'Clocked In';
   return 'Offline';
 };
 
@@ -636,8 +702,26 @@ const buildSummary = (summary) => {
 };
 
 const getTeamIcon = (key) => {
-  const color = key === 'ideal' ? '#16A34A' : key === 'busy' ? '#F97316' : '#94A3B8';
-  return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>;
+  if (key === 'on_job') return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2">
+      <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+    </svg>
+  );
+  if (key === 'on_route') return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C2410C" strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+    </svg>
+  );
+  if (key === 'clocked_in') return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+  );
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2">
+      <circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    </svg>
+  );
 };
 
 const getInitials = (name = '') => name
