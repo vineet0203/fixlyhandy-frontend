@@ -3,6 +3,16 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["DM Sans", "Poppins", "ui-sans-serif", "system-ui"],
+        display: ["Clash Display", "DM Sans", "ui-sans-serif", "system-ui"],
+      },
+      colors: {
+        brand: {
+          navy: "#0D1B2A",
+          gold: "#F5A623",
+        },
+      },
       keyframes: {
         growFromBottom: {
           "0%": {

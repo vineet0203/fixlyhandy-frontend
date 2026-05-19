@@ -42,6 +42,7 @@ import EmployeeLogin from './features/employee-auth/pages/EmployeeLogin';
 import EmployeeForgotPassword from './features/employee-auth/pages/EmployeeForgotPassword';
 import EmployeeResetPassword from './features/employee-auth/pages/EmployeeResetPassword';
 import EmployeeDashboard from './features/employee-auth/pages/EmployeeDashboard';
+import LandingPage from './pages/LandingPage';
 
 // Onboarding Pages
 import FillForm from './features/onboarding/pages/FillForm';
@@ -65,6 +66,7 @@ const AppContent = () => {
   return (
     <Routes>
       {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/register" element={<Register />} />
       <Route path="/auth/forgot-password" element={<ForgotPassword />} />
@@ -135,7 +137,7 @@ const AppContent = () => {
       </Route>
 
       {/* Redirects */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/home" element={<Navigate to="/" replace />} />
       <Route path="/login" element={<Navigate to="/auth/login" replace />} />
       <Route path="/register" element={<Navigate to="/auth/register" replace />} />
 
