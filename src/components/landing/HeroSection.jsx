@@ -1,18 +1,45 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarCheck, ChevronDown, MapPin, Search, Sparkles, Zap } from "lucide-react";
+import {
+  CalendarCheck,
+  ChevronDown,
+  MapPin,
+  PlayCircle,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Timer,
+} from "lucide-react";
 
-const stats = [
-  { label: "Customers", value: "10K+" },
-  { label: "Vendors", value: "500+" },
-  { label: "Cities", value: "50+" },
+const trustHighlights = [
+  { title: "Residential & Commercial Services", icon: CalendarCheck },
+  { title: "Skilled & Background Checked Pros", icon: ShieldCheck },
+  { title: "On-Time Guaranteed", icon: Timer },
+  { title: "Satisfaction 100% Guaranteed", icon: Sparkles },
 ];
 
-const floatingCards = [
-  { title: "Verified Vendors", icon: CalendarCheck },
-  { title: "Real-Time Tracking", icon: MapPin },
-  { title: "Instant Quotes", icon: Sparkles },
-  { title: "Smart Scheduling", icon: Zap },
+const featureStrip = [
+  {
+    title: "Book in Minutes",
+    description: "Easy online booking anytime, anywhere.",
+    icon: "📅",
+  },
+  {
+    title: "Skilled Professionals",
+    description: "Experienced, vetted & background checked.",
+    icon: "👤",
+  },
+  {
+    title: "We Come to You",
+    description: "On-time service at your home or business.",
+    icon: "📍",
+  },
+  {
+    title: "Satisfaction Guaranteed",
+    description: "Quality work with a promise you can count on.",
+    icon: "🛡️",
+  },
 ];
 
 const HeroSection = ({ catalog, onBook }) => {
@@ -82,186 +109,219 @@ const HeroSection = ({ catalog, onBook }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
+
   return (
-    <section id="home" className="relative bg-white">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-brand-gold/20 blur-3xl" />
-        <div className="absolute right-0 top-24 h-80 w-80 rounded-full bg-brand-navy/10 blur-3xl" />
+    <section id="home" className="relative min-h-[520px] overflow-hidden bg-white">
+      <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20">
+        <div className="grid min-h-[520px] grid-cols-1 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col justify-center py-12 lg:py-16"
+          >
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-brand-navy/5 px-4 py-2 text-xs font-semibold text-brand-navy">
+              <Star size={12} className="text-brand-gold" />
+              Your Trusted Handyman Partner
+            </div>
+            <h1 className="mt-6 text-4xl font-display font-semibold leading-tight text-brand-navy md:text-5xl">
+              Reliable Handyman Services for Every
+              <span className="mt-2 block text-brand-gold">Home &amp; Business</span>
+            </h1>
+            <p className="mt-4 text-lg text-slate-600">
+              Professional. Punctual. Affordable. We handle the fixes, so you can focus on what
+              matters.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                className="inline-flex items-center gap-2 rounded-full bg-brand-gold px-6 py-3 text-sm font-semibold text-brand-navy shadow-lg shadow-amber-200/70 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={!location || !selectedService}
+                onClick={() =>
+                  onBook?.({
+                    location,
+                    service: {
+                      name: selectedService?.name,
+                      category: selectedService?.category,
+                      basePrice: selectedService?.basePrice,
+                      duration: selectedService?.duration,
+                    },
+                  })
+                }
+              >
+                <CalendarCheck size={16} />
+                Book a Service
+              </button>
+              <a
+                href="#how"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-brand-navy"
+              >
+                <PlayCircle size={18} />
+                How It Works
+              </a>
+            </div>
+
+            <div className="mt-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-100/80 md:grid-cols-[1fr_1.2fr]">
+              <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500">
+                <MapPin size={16} />
+                <input
+                  type="text"
+                  placeholder="Enter your location"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
+                />
+              </label>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen((prev) => !prev)}
+                  className="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500"
+                >
+                  <span className="flex items-center gap-2">
+                    <CalendarCheck size={16} />
+                    {selectedService ? selectedService.name : "Select Service"}
+                  </span>
+                  <ChevronDown size={16} />
+                </button>
+                {isOpen && (
+                  <div className="absolute left-0 right-0 top-[110%] z-20 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500">
+                      <Search size={14} />
+                      <input
+                        type="text"
+                        value={query}
+                        onChange={(event) => {
+                          setQuery(event.target.value);
+                          setHighlighted(0);
+                        }}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Search services"
+                        className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="mt-3 max-h-64 overflow-y-auto text-sm">
+                      {filteredGroups.length === 0 && (
+                        <div className="rounded-xl bg-slate-50 px-3 py-4 text-center text-slate-400">
+                          No services found.
+                        </div>
+                      )}
+                      {filteredGroups.map((category) => (
+                        <div key={category.name} className="mb-3">
+                          <p className="px-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
+                            {category.name}
+                          </p>
+                          <div className="mt-2 grid gap-1">
+                            {category.services.map((service) => {
+                              const index = flatServices.findIndex(
+                                (item) => item.name === service.name
+                              );
+                              const active = index === highlighted;
+                              return (
+                                <button
+                                  key={service.name}
+                                  type="button"
+                                  onClick={() =>
+                                    handleSelect({
+                                      ...service,
+                                      category: category.name,
+                                    })
+                                  }
+                                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm ${
+                                    active
+                                      ? "bg-brand-gold/20 text-brand-navy"
+                                      : "text-slate-600 hover:bg-slate-50"
+                                  }`}
+                                >
+                                  <span>{service.name}</span>
+                                  <span className="text-xs text-slate-400">{service.duration}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-500">
+              <div className="flex items-center">
+                {[
+                  "https://i.pravatar.cc/40?img=12",
+                  "https://i.pravatar.cc/40?img=32",
+                  "https://i.pravatar.cc/40?img=47",
+                ].map((src) => (
+                  <img
+                    key={src}
+                    src={src}
+                    alt="Customer"
+                    className="-ml-2 h-8 w-8 rounded-full border-2 border-white object-cover first:ml-0"
+                  />
+                ))}
+              </div>
+              <span className="flex items-center gap-1 text-brand-gold">
+                <Star size={14} />
+                <Star size={14} />
+                <Star size={14} />
+                <Star size={14} />
+                <Star size={14} />
+              </span>
+              4.9/5 | From 2,000+ Happy Customers
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="relative overflow-hidden"
+          >
+            <div className="h-[300px] sm:h-[360px] lg:h-[520px]">
+              <img
+                src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&w=1200&q=80"
+                alt="Handyman"
+                className="h-full w-full object-cover object-center"
+              />
+            </div>
+
+            <div className="absolute right-0 top-0 w-[280px] rounded-bl-3xl bg-brand-navy p-6 text-white shadow-2xl">
+              <div className="space-y-4 text-sm">
+                {trustHighlights.map((item) => (
+                  <div key={item.title} className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                      <item.icon size={16} className="text-brand-gold" />
+                    </span>
+                    <span>{item.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
-      <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20 pt-20 pb-14 grid gap-12 lg:gap-16 xl:gap-20 lg:grid-cols-[1.12fr_1fr] items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <p className="inline-flex items-center gap-2 rounded-full bg-brand-navy/5 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-brand-navy">
-            Premium Field Service Platform
-          </p>
-          <h1 className="mt-5 text-4xl font-display font-semibold leading-tight text-brand-navy md:text-5xl">
-            Manage Service Jobs Smarter, Faster and Better
-          </h1>
-          <p className="mt-4 text-lg text-slate-600">
-            TrackJobs helps service businesses manage bookings, vendors, employees, dispatching,
-            quotes, invoices and customers in one powerful platform.
-          </p>
-
-          <div className="mt-8 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-100/80 md:grid-cols-[1fr_1.2fr_auto]">
-            <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500">
-              <MapPin size={16} />
-              <input
-                type="text"
-                placeholder="Location"
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
-              />
-            </label>
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsOpen((prev) => !prev)}
-                className="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500"
-              >
-                <span className="flex items-center gap-2">
-                  <CalendarCheck size={16} />
-                  {selectedService ? selectedService.name : "Select Service"}
+      <div className="bg-brand-navy text-white">
+        <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20 py-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {featureStrip.map((item) => (
+              <div key={item.title} className="flex items-start gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-brand-gold">
+                  {item.icon}
                 </span>
-                <ChevronDown size={16} />
-              </button>
-              {isOpen && (
-                <div className="absolute left-0 right-0 top-[110%] z-20 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
-                  <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500">
-                    <Search size={14} />
-                    <input
-                      type="text"
-                      value={query}
-                      onChange={(event) => {
-                        setQuery(event.target.value);
-                        setHighlighted(0);
-                      }}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Search services"
-                      className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
-                      autoFocus
-                    />
-                  </div>
-                  <div className="mt-3 max-h-64 overflow-y-auto text-sm">
-                    {filteredGroups.length === 0 && (
-                      <div className="rounded-xl bg-slate-50 px-3 py-4 text-center text-slate-400">
-                        No services found.
-                      </div>
-                    )}
-                    {filteredGroups.map((category) => (
-                      <div key={category.name} className="mb-3">
-                        <p className="px-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-                          {category.name}
-                        </p>
-                        <div className="mt-2 grid gap-1">
-                          {category.services.map((service) => {
-                            const index = flatServices.findIndex(
-                              (item) => item.name === service.name
-                            );
-                            const active = index === highlighted;
-                            return (
-                              <button
-                                key={service.name}
-                                type="button"
-                                onClick={() =>
-                                  handleSelect({
-                                    ...service,
-                                    category: category.name,
-                                  })
-                                }
-                                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm ${
-                                  active
-                                    ? "bg-brand-gold/20 text-brand-navy"
-                                    : "text-slate-600 hover:bg-slate-50"
-                                }`}
-                              >
-                                <span>{service.name}</span>
-                                <span className="text-xs text-slate-400">{service.duration}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div>
+                  <p className="text-sm font-semibold">{item.title}</p>
+                  <p className="mt-1 text-xs text-white/70">{item.description}</p>
                 </div>
-              )}
-            </div>
-            <button
-              className="rounded-xl bg-brand-gold px-5 py-3 text-sm font-semibold text-brand-navy shadow-lg shadow-amber-200/70 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!location || !selectedService}
-              onClick={() =>
-                onBook?.({
-                  location,
-                  service: {
-                    name: selectedService?.name,
-                    category: selectedService?.category,
-                    basePrice: selectedService?.basePrice,
-                    duration: selectedService?.duration,
-                  },
-                })
-              }
-            >
-              Book Service
-            </button>
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-6">
-            {stats.map((item) => (
-              <div key={item.label} className="text-sm text-slate-500">
-                <div className="text-xl font-semibold text-brand-navy">{item.value}</div>
-                {item.label}
               </div>
             ))}
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative"
-        >
-          <div className="relative rounded-[28px] border border-slate-200 bg-white p-6 lg:p-8 shadow-2xl shadow-slate-200/70">
-            <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 via-white to-amber-100">
-              <img
-                src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=900&q=80"
-                alt="Technician"
-                className="h-64 w-full object-cover md:h-72"
-              />
-            </div>
-            <div className="mt-4 grid gap-3">
-              {floatingCards.map((card) => (
-                <div
-                  key={card.title}
-                  className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm"
-                >
-                  <div className="flex items-center gap-3 text-sm font-semibold text-brand-navy">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gold/20 text-brand-navy">
-                      <card.icon size={18} />
-                    </span>
-                    {card.title}
-                  </div>
-                  <span className="text-xs text-slate-400">Live</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="absolute -right-6 -top-8 hidden rounded-2xl border border-white/50 bg-white/60 p-4 shadow-xl backdrop-blur lg:block">
-            <p className="text-xs text-slate-500">Monthly Revenue</p>
-            <p className="text-lg font-semibold text-brand-navy">$1.2M</p>
-            <div className="mt-3 h-2 w-32 rounded-full bg-slate-200">
-              <div className="h-2 w-20 rounded-full bg-brand-gold" />
-            </div>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

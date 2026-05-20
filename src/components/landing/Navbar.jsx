@@ -1,30 +1,32 @@
 import React, { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Home, Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 const navLinks = [
   { label: "Home", href: "#home" },
   { label: "Services", href: "#services" },
+  { label: "For Business", href: "#features" },
+  { label: "About Us", href: "#about" },
   { label: "How It Works", href: "#how" },
-  { label: "Vendors", href: "#vendors" },
-  { label: "Features", href: "#features" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Contact Us", href: "#contact" },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100">
       <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20 py-4 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gold text-brand-navy font-bold">
-            TJ
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gold/20 text-brand-navy">
+            <Home size={18} />
           </span>
-          <span className="text-lg font-semibold text-brand-navy">
-            TRAK<span className="text-brand-gold">JOBS</span>
-          </span>
+          <div className="leading-tight">
+            <span className="text-lg font-semibold text-brand-navy">
+              Trak<span className="text-brand-gold">Jobs</span>
+            </span>
+            <div className="text-xs text-slate-500">Fix it. Right on time.</div>
+          </div>
         </a>
 
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-600">
@@ -32,22 +34,33 @@ const Navbar = () => {
             <a
               key={link.label}
               href={link.href}
-              className="transition text-slate-600 hover:text-brand-navy"
+              className={`relative transition hover:text-brand-navy ${
+                link.label === "Home" ? "text-brand-navy" : "text-slate-600"
+              }`}
             >
               {link.label}
+              {link.label === "Home" && (
+                <span className="absolute -bottom-2 left-0 h-0.5 w-full bg-brand-gold" />
+              )}
             </a>
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-4">
-          <a href="/auth/login" className="text-sm font-semibold text-slate-600">
-            Login
-          </a>
+        <div className="hidden lg:flex items-center gap-6">
+          <div className="flex items-center gap-3 text-sm text-slate-600">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-navy/10 text-brand-navy">
+              📞
+            </span>
+            <div className="leading-tight">
+              <div className="font-semibold text-brand-navy">(833) 349-4399</div>
+              <div className="text-xs text-slate-500">Available 24/7</div>
+            </div>
+          </div>
           <a
-            href="#cta"
-            className="rounded-full bg-brand-gold px-5 py-2.5 text-sm font-semibold text-brand-navy shadow-lg shadow-amber-200/60 transition hover:-translate-y-0.5"
+            href="#home"
+            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-brand-navy shadow-lg shadow-amber-200/60 transition hover:-translate-y-0.5"
           >
-            Get Started
+            Book Now
           </a>
         </div>
 
@@ -74,15 +87,21 @@ const Navbar = () => {
                 {link.label}
               </a>
             ))}
-            <div className="flex items-center gap-4 pt-2">
-              <a href="/auth/login" className="text-sm font-semibold text-slate-600">
-                Login
-              </a>
+            <div className="flex flex-col gap-3 pt-2">
+              <div className="flex items-center gap-3 text-sm text-slate-600">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-navy/10 text-brand-navy">
+                  📞
+                </span>
+                <div className="leading-tight">
+                  <div className="font-semibold text-brand-navy">(833) 349-4399</div>
+                  <div className="text-xs text-slate-500">Available 24/7</div>
+                </div>
+              </div>
               <a
-                href="#cta"
-                className="rounded-full bg-brand-gold px-5 py-2.5 text-sm font-semibold text-brand-navy"
+                href="#home"
+                className="rounded-lg bg-brand-gold px-5 py-2.5 text-center text-sm font-semibold text-brand-navy"
               >
-                Get Started
+                Book Now
               </a>
             </div>
           </div>

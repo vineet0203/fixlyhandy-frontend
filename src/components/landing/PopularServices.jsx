@@ -1,26 +1,27 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  DoorOpen,
+  Hammer,
+  Layers,
+  Paintbrush,
+  PlugZap,
+  Snowflake,
+  Wrench,
+} from "lucide-react";
 
-const services = [
-  {
-    title: "Light Installation",
-    rating: "4.9",
-    image:
-      "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "AC Service & Repair",
-    rating: "4.8",
-    image:
-      "https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "Deep Home Cleaning",
-    rating: "4.7",
-    image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80",
-  },
+const featuredServices = [
+  { label: "Plumbing", serviceName: "Tap Repair", icon: Wrench },
+  { label: "Electrical", serviceName: "Light Installation", icon: PlugZap },
+  { label: "Carpentry", serviceName: "Modular Furniture Work", icon: Hammer },
+  { label: "Painting", serviceName: "Interior Painting", icon: Paintbrush },
+  { label: "Flooring", serviceName: "Flooring Repair", icon: Layers },
+  { label: "Door & Window", serviceName: "Door Repair & Installation", icon: DoorOpen },
+  { label: "HVAC", serviceName: "AC Service & Repair", icon: Snowflake },
+  { label: "Cleaning", serviceName: "Deep Home Cleaning", icon: Paintbrush },
+  { label: "Commercial", serviceName: "Office Setup Assistance", icon: Building2 },
 ];
 
 const PopularServices = ({ onBook, catalog }) => {
@@ -44,48 +45,41 @@ const PopularServices = ({ onBook, catalog }) => {
   };
 
   return (
-    <section className="bg-white">
-      <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20 py-16">
-        <div className="flex flex-col gap-3 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-brand-gold">
-            Popular Services
-          </p>
-          <h2 className="text-3xl font-display text-brand-navy">Top booked services</h2>
-          <p className="text-slate-600">Marketplace offerings with transparent pricing.</p>
-        </div>
+    <section id="services" className="bg-white">
+      <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20 py-12">
+        <h2 className="text-center text-2xl font-semibold text-slate-900 md:text-3xl">
+          Our Most Popular Services
+        </h2>
 
-        <div className="mt-10 grid gap-8 md:grid-cols-3">
-          {services.map((service) => {
-            const details = serviceLookup.get(service.title);
-            const displayPrice = details ? `$${details.basePrice}` : "$--";
+        <div className="mt-8 grid gap-4 sm:grid-cols-4 lg:grid-cols-9">
+          {featuredServices.map((service) => {
+            const details = serviceLookup.get(service.serviceName);
             return (
-            <motion.div
-              key={service.title}
-              whileHover={{ y: -6 }}
-              className="rounded-2xl border border-slate-100 bg-white shadow-sm"
-            >
-              <div className="overflow-hidden rounded-t-2xl">
-                <img src={service.image} alt={service.title} className="h-40 w-full object-cover" />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-brand-navy">{service.title}</h3>
-                  <span className="text-sm font-semibold text-brand-gold">{displayPrice}</span>
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                  <Star size={14} className="text-brand-gold" /> {service.rating}
-                </div>
-                <button
-                  className="mt-4 w-full rounded-xl bg-brand-navy px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => handleBook(service.title)}
-                  disabled={!details}
-                >
-                  Book Service
-                </button>
-              </div>
-            </motion.div>
+              <motion.button
+                key={service.label}
+                whileHover={{ y: -3 }}
+                className="rounded-2xl border border-slate-100 bg-white px-3 py-5 text-center shadow-sm transition hover:border-brand-gold/40 hover:shadow-md"
+                onClick={() => handleBook(service.serviceName)}
+                disabled={!details}
+              >
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-navy/5 text-brand-navy">
+                  <service.icon size={22} />
+                </span>
+                <p className="mt-3 text-xs font-semibold text-brand-navy sm:text-sm">
+                  {service.label}
+                </p>
+              </motion.button>
             );
           })}
+          <button className="rounded-2xl border border-slate-200 bg-white px-3 py-5 text-center text-xs font-semibold text-brand-navy sm:text-sm">
+            <span className="flex flex-col items-center gap-2">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold/20 text-brand-navy">
+                <ArrowRight size={16} />
+              </span>
+              View All
+              <span>Services</span>
+            </span>
+          </button>
         </div>
       </div>
     </section>

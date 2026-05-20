@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
 import Navbar from "../components/landing/Navbar";
 import HeroSection from "../components/landing/HeroSection";
+import TrustBadgesSection from "../components/landing/TrustBadgesSection";
+import TrustStripSection from "../components/landing/TrustStripSection";
 import StatsSection from "../components/landing/StatsSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import HowItWorksSection from "../components/landing/HowItWorksSection";
@@ -31,6 +33,9 @@ const LandingPage = () => {
       <Navbar />
       <main className="overflow-hidden">
         <HeroSection catalog={serviceCatalog} onBook={handleStartBooking} />
+        <PopularServices onBook={handleStartBooking} catalog={serviceCatalog} />
+        <TrustStripSection />
+        <TrustBadgesSection />
         {bookingData && (
           <div ref={workflowRef}>
             <BookingWorkflow catalog={serviceCatalog} initialSelection={bookingData} />
@@ -40,7 +45,6 @@ const LandingPage = () => {
         <FeaturesSection />
         <HowItWorksSection />
         <DashboardPreview />
-        <PopularServices onBook={handleStartBooking} catalog={serviceCatalog} />
         <VendorsSection />
         <Testimonials />
         <MobileAppSection />
