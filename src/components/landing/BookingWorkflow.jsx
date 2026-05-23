@@ -8,33 +8,188 @@ import {
   Minus,
   Plus,
   ShieldCheck,
+  Flame,
+  Zap,
+  Droplet,
+  Hammer,
+  Paintbrush,
+  Wrench,
+  MoreHorizontal,
+  Monitor,
+  Phone,
+  ChevronDown,
+  X,
+  Lock,
+  ArrowRight,
+  DoorOpen,
+  AppWindow,
+  Frame,
+  Grid,
+  ArrowUp,
+  Sofa,
+  Blinds,
+  Layers,
+  Tv,
+  Lightbulb,
+  Fan,
+  Plug,
+  Cable,
+  Bell,
+  Cctv,
+  BatteryCharging,
+  Droplets,
+  Bath,
+  UtensilsCrossed,
+  Cylinder,
+  ShowerHead,
+  PaintBucket,
+  Brush,
+  Sparkles,
+  Image as ImageIcon,
+  Umbrella,
+  Box,
+  DoorClosed,
+  Bed,
+  Library,
+  ChefHat,
+  Utensils,
+  AirVent,
+  Refrigerator,
+  WashingMachine,
+  Microwave,
+  Thermometer,
+  Wind,
+  TreePine,
+  Scissors,
+  Waves,
+  Sun,
+  Wifi,
+  Key,
+  Camera,
+  Cpu,
+  Package,
+  Truck,
+  Dumbbell,
+  Briefcase,
+  SprayCan
 } from "lucide-react";
 
-const steps = ["Details", "Review", "Confirmation"];
+const steps = [
+  { id: 1, name: "Select Location" },
+  { id: 2, name: "Select Service" },
+  { id: 3, name: "Service Details" },
+  { id: 4, name: "Review & Book" },
+];
+
+const categoryIcons = {
+  "Home Repair Services": Hammer,
+  "Electrical Services": Zap,
+  "Plumbing Services": Droplet,
+  "Painting & Wall Services": Paintbrush,
+  "Carpentry Services": Hammer,
+  "Cleaning Services": Droplet,
+  "Appliance Services": Wrench,
+  "Outdoor Services": MoreHorizontal,
+  "Smart Home & Installation": Monitor,
+  "Moving & Support Services": MoreHorizontal,
+};
+
+const serviceIcons = {
+  // Home Repair
+  "Door Repair & Installation": DoorOpen,
+  "Window Repair": AppWindow,
+  "Drywall Repair": Frame,
+  "Wall Patching": Grid,
+  "Ceiling Repair": ArrowUp,
+  "Furniture Assembly": Sofa,
+  "Curtain & Blind Installation": Blinds,
+  "Lock Replacement": Lock,
+  "Shelf Installation": Layers,
+  "TV Wall Mounting": Tv,
+  // Electrical
+  "Light Installation": Lightbulb,
+  "Fan Installation": Fan,
+  "Switch & Socket Repair": Plug,
+  "Wiring Repair": Cable,
+  "Doorbell Installation": Bell,
+  "CCTV Installation": Cctv,
+  "Power Backup Setup": BatteryCharging,
+  // Plumbing
+  "Tap Repair": Droplets,
+  "Pipe Leakage Repair": Droplet,
+  "Toilet Repair": Bath,
+  "Sink Installation": UtensilsCrossed,
+  "Water Tank Cleaning": Cylinder,
+  "Bathroom Fitting Installation": Bath,
+  "Shower Repair": ShowerHead,
+  // Painting & Wall
+  "Interior Painting": PaintBucket,
+  "Exterior Painting": Brush,
+  "Texture Painting": Sparkles,
+  "Wallpaper Installation": ImageIcon,
+  "Wall Cleaning": SprayCan,
+  "Waterproofing": Umbrella,
+  // Carpentry
+  "Modular Furniture Work": Sofa,
+  "Cabinet Repair": Box,
+  "Wooden Door Repair": DoorClosed,
+  "Bed Repair": Bed,
+  "Custom Shelves": Library,
+  "Kitchen Cabinet Installation": ChefHat,
+  // Cleaning
+  "Deep Home Cleaning": Sparkles,
+  "Sofa Cleaning": Sofa,
+  "Carpet Cleaning": Sparkles,
+  "Kitchen Cleaning": Utensils,
+  "Bathroom Cleaning": Bath,
+  // Appliance
+  "AC Service & Repair": AirVent,
+  "Refrigerator Repair": Refrigerator,
+  "Washing Machine Repair": WashingMachine,
+  "Microwave Repair": Microwave,
+  "Geyser Installation": Thermometer,
+  "Chimney Cleaning": Wind,
+  // Outdoor
+  "Garden Maintenance": TreePine,
+  "Grass Cutting": Scissors,
+  "Fence Repair": Grid,
+  "Pressure Washing": Waves,
+  "Outdoor Lighting": Sun,
+  // Smart Home
+  "WiFi Setup": Wifi,
+  "Smart Lock Installation": Key,
+  "Smart Camera Setup": Camera,
+  "Home Automation Setup": Cpu,
+  // Moving
+  "Packing & Unpacking": Package,
+  "Local Shifting Help": Truck,
+  "Heavy Item Moving": Dumbbell,
+  "Office Setup Assistance": Briefcase,
+};
 
 const BookingWorkflow = ({ catalog, initialSelection }) => {
-  const [activeStep, setActiveStep] = useState(0);
+  // Always treating this as step 2 (Select Service) / 3 (Service Details) combined view for now
+  // We'll advance to step 4 when "Review & Book" is clicked, but the core request
+  // is to build the specific "Select Service/Details" dashboard layout.
+  const [activeStep, setActiveStep] = useState(2); 
+
   const initialCategory = useMemo(() => {
     return catalog.find((category) => category.name === initialSelection.category)?.name ||
       catalog[0]?.name;
   }, [catalog, initialSelection.category]);
 
   const initialService = useMemo(() => {
-    const category =
-      catalog.find((item) => item.name === initialCategory) || catalog[0];
+    const category = catalog.find((item) => item.name === initialCategory) || catalog[0];
     const match = category?.services.find((service) => service.name === initialSelection.name);
-    return match?.name || category?.services[0]?.name;
+    return match?.name || null; // Start with nothing selected if no direct match, to show the "No service selected" state
   }, [catalog, initialCategory, initialSelection.name]);
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedService, setSelectedService] = useState(initialService);
   const [quantity, setQuantity] = useState(1);
-  const [resources, setResources] = useState(1);
-  const [priority, setPriority] = useState("Normal");
   const [notes, setNotes] = useState("");
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [files, setFiles] = useState([]);
 
   const categoryData = useMemo(() => {
@@ -42,10 +197,8 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
   }, [catalog, selectedCategory]);
 
   const serviceData = useMemo(() => {
-    return (
-      categoryData?.services.find((service) => service.name === selectedService) ||
-      categoryData?.services[0]
-    );
+    if (!selectedService) return null;
+    return categoryData?.services.find((service) => service.name === selectedService) || null;
   }, [categoryData, selectedService]);
 
   useEffect(() => {
@@ -53,336 +206,394 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
     setSelectedService(initialService);
   }, [initialCategory, initialService]);
 
-  const basePrice = serviceData.basePrice;
-  const resourceCharge = (resources - 1) * 25;
-  const serviceFee = 12;
-  const tax = (basePrice * quantity + resourceCharge + serviceFee) * 0.08;
-  const total = basePrice * quantity + resourceCharge + serviceFee + tax;
+  const basePrice = serviceData ? serviceData.basePrice : 0;
+  const serviceFee = serviceData ? 10 : 0;
+  const subtotal = basePrice * quantity;
+  const total = subtotal + serviceFee;
+
+  const handleServiceSelect = (serviceName) => {
+    setSelectedService(serviceName === selectedService ? null : serviceName);
+    setQuantity(1); // Reset quantity on new selection
+  };
+
+  const removeFile = (indexToRemove) => {
+    setFiles(files.filter((_, index) => index !== indexToRemove));
+  };
+
+  // Mock specific styling for "Popular Services" logic
+  const isPopular = selectedCategory === "Home Repair Services";
 
   return (
-    <section className="bg-slate-50/70">
-      <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 xl:px-16 2xl:px-20 py-16">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
-          <div className="flex flex-wrap items-center gap-3">
-            {steps.map((step, index) => (
-              <div key={step} className="flex items-center gap-2">
-                <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                    index <= activeStep
-                      ? "bg-brand-gold text-brand-navy"
-                      : "border border-slate-200 text-slate-400"
+    <section className="bg-[#FAFAFA] py-16 font-sans text-slate-800">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        
+        {/* Progress Bar */}
+        <div className="mb-10 w-full">
+          <div className="flex items-center justify-between relative">
+            {/* Connecting lines */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-slate-200 z-0"></div>
+            <div 
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-brand-navy z-0 transition-all duration-300"
+              style={{ width: `${((activeStep - 1) / (steps.length - 1)) * 100}%` }}
+            ></div>
+
+            {steps.map((step, index) => {
+              const isCompleted = step.id < activeStep;
+              const isCurrent = step.id === activeStep;
+              
+              return (
+                <div key={step.id} className="relative z-10 flex flex-col items-center bg-[#FAFAFA] px-2">
+                  <div 
+                    className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
+                      isCurrent
+                        ? "bg-amber-400 text-brand-navy shadow-md ring-4 ring-white"
+                        : isCompleted
+                        ? "bg-brand-navy text-white ring-4 ring-white"
+                        : "bg-white border-2 border-slate-200 text-slate-400"
+                    }`}
+                  >
+                    {isCompleted ? <CheckCircle2 size={20} /> : step.id}
+                  </div>
+                  <span className={`mt-3 text-[13px] font-semibold ${isCurrent ? 'text-brand-navy' : 'text-slate-500'}`}>
+                    {step.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid gap-6 lg:grid-cols-[280px_1fr_300px]">
+          
+          {/* LEFT COLUMN: Categories */}
+          <div className="flex flex-col gap-6">
+            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h3 className="text-[15px] font-bold text-slate-800">Service Categories</h3>
+              </div>
+              <div className="flex flex-col p-2">
+                {/* Popular Services Special Item */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(catalog[0].name);
+                    setSelectedService(null);
+                  }}
+                  className={`flex items-center justify-between rounded-xl px-4 py-3 text-left transition-colors ${
+                    isPopular ? "bg-amber-50 border border-amber-300" : "hover:bg-slate-50 border border-transparent"
                   }`}
                 >
-                  {index + 1}
-                </span>
-                <span className="text-xs font-semibold text-slate-500">{step}</span>
-                {index < steps.length - 1 && <span className="mx-2 h-px w-6 bg-slate-200" />}
-              </div>
-            ))}
-          </div>
+                  <div className="flex items-center gap-3">
+                    <Flame className={isPopular ? "text-amber-500" : "text-slate-400"} size={20} />
+                    <div>
+                      <div className={`text-[14px] font-bold ${isPopular ? "text-slate-900" : "text-slate-700"}`}>Popular Services</div>
+                      <div className="text-[12px] text-slate-500">Most booked services</div>
+                    </div>
+                  </div>
+                  {isPopular && <ChevronDown size={16} className="text-amber-500 -rotate-90" />}
+                </button>
 
-          {activeStep < 2 && (
-            <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.4fr_0.9fr]">
-              <aside className="rounded-2xl border border-slate-100 bg-white p-4">
-                <p className="text-sm font-semibold text-brand-navy">Categories</p>
-                <div className="mt-4 space-y-2 text-sm">
-                  {catalog.map((category) => (
+                <div className="my-2 border-t border-slate-100 mx-2"></div>
+
+                {catalog.map((category) => {
+                  if (category.name === catalog[0].name) return null; // Skip first as it's 'popular'
+                  const Icon = categoryIcons[category.name] || MoreHorizontal;
+                  const isActive = selectedCategory === category.name;
+                  
+                  return (
                     <button
                       key={category.name}
                       type="button"
                       onClick={() => {
                         setSelectedCategory(category.name);
-                        setSelectedService(category.services[0].name);
+                        setSelectedService(null);
                       }}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left ${
-                        selectedCategory === category.name
-                          ? "bg-brand-gold/20 text-brand-navy"
-                          : "text-slate-500 hover:bg-slate-50"
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
+                        isActive ? "bg-amber-50 border border-amber-300" : "hover:bg-slate-50 border border-transparent"
                       }`}
                     >
-                      <span>{category.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </aside>
-
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-brand-navy">Services</p>
-                    <p className="text-xs text-slate-500">{selectedCategory}</p>
-                  </div>
-                  <div className="text-xs text-slate-400">
-                    Location: {initialSelection.location}
-                  </div>
-                </div>
-                <div className="mt-4 grid gap-3">
-                  {categoryData.services.map((service) => (
-                    <button
-                      key={service.name}
-                      type="button"
-                      onClick={() => setSelectedService(service.name)}
-                      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${
-                        selectedService === service.name
-                          ? "border-brand-gold bg-brand-gold/10 text-brand-navy"
-                          : "border-slate-100 text-slate-500"
-                      }`}
-                    >
-                      <span>{service.name}</span>
-                      <span className="text-xs text-slate-400">${service.basePrice}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <p className="text-sm font-semibold text-brand-navy">Service Details</p>
-                <div className="mt-4 space-y-3 text-sm text-slate-600">
-                  <div className="flex items-center justify-between">
-                    <span>{serviceData.name}</span>
-                    <span className="font-semibold text-brand-navy">${serviceData.basePrice}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <MapPin size={14} /> Estimated duration: {serviceData.duration}
-                  </div>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  <label className="text-xs text-slate-500">
-                    Preferred Start Date
-                    <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
-                      <Calendar size={14} />
-                      <input
-                        type="date"
-                        value={startDate}
-                        onChange={(event) => setStartDate(event.target.value)}
-                        className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
-                      />
-                    </div>
-                  </label>
-                  <label className="text-xs text-slate-500">
-                    Preferred Start Time
-                    <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
-                      <Clock size={14} />
-                      <input
-                        type="time"
-                        value={startTime}
-                        onChange={(event) => setStartTime(event.target.value)}
-                        className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
-                      />
-                    </div>
-                  </label>
-                  <label className="text-xs text-slate-500">
-                    Preferred End Time
-                    <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
-                      <Clock size={14} />
-                      <input
-                        type="time"
-                        value={endTime}
-                        onChange={(event) => setEndTime(event.target.value)}
-                        className="w-full border-none bg-transparent text-sm text-slate-700 outline-none"
-                      />
-                    </div>
-                  </label>
-                  <label className="text-xs text-slate-500">
-                    Priority
-                    <select
-                      value={priority}
-                      onChange={(event) => setPriority(event.target.value)}
-                      className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none"
-                    >
-                      <option>Normal</option>
-                      <option>Urgent</option>
-                      <option>Emergency</option>
-                    </select>
-                  </label>
-                  <label className="text-xs text-slate-500">
-                    Notes / Description
-                    <textarea
-                      rows={3}
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                      className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeStep === 1 && (
-            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <p className="text-sm font-semibold text-brand-navy">Pricing Summary</p>
-                <div className="mt-4 space-y-3 text-sm text-slate-600">
-                  <div className="flex items-center justify-between">
-                    <span>Base service cost</span>
-                    <span>${(basePrice * quantity).toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Resource charges</span>
-                    <span>${resourceCharge.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Platform/service fee</span>
-                    <span>${serviceFee.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Tax/GST</span>
-                    <span>${tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-3 font-semibold">
-                    <span>Estimated total</span>
-                    <span className="text-brand-navy">${total.toFixed(2)}</span>
-                  </div>
-                </div>
-                <p className="mt-3 text-xs text-slate-400">Pricing may vary after inspection.</p>
-              </div>
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <p className="text-sm font-semibold text-brand-navy">Review & Confirm</p>
-                <div className="mt-4 text-sm text-slate-600">
-                  <p className="font-semibold">{serviceData.name}</p>
-                  <p className="text-xs text-slate-500">{selectedCategory}</p>
-                  <div className="mt-3 space-y-2 text-xs text-slate-500">
-                    <div>Location: {initialSelection.location}</div>
-                    <div>Start: {startDate || "-"} at {startTime || "-"}</div>
-                    <div>End: {endTime || "-"}</div>
-                    <div>Resources: {resources}</div>
-                    <div>Priority: {priority}</div>
-                  </div>
-                  <div className="mt-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
-                    {notes || "No notes added."}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeStep === 2 && (
-            <div className="mt-10 flex flex-col items-center gap-4 text-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-gold/20 text-brand-navy">
-                <CheckCircle2 size={28} />
-              </span>
-              <h3 className="text-2xl font-display text-brand-navy">Request submitted</h3>
-              <p className="max-w-lg text-sm text-slate-600">
-                Your request is sent to TrakJobs vendor network. Vendors can review and send a
-                quotation shortly.
-              </p>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <ShieldCheck size={14} /> Verified vendors are notified.
-              </div>
-            </div>
-          )}
-
-          {activeStep < 2 && (
-            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <p className="text-sm font-semibold text-brand-navy">Upload Images</p>
-                <div className="mt-3 flex items-center justify-center rounded-2xl border border-dashed border-slate-300 px-4 py-6 text-center text-xs text-slate-500">
-                  <div>
-                    <CloudUpload className="mx-auto" />
-                    <p className="mt-2 text-sm font-semibold">Drag & drop images</p>
-                    <p className="text-xs text-slate-400">PNG, JPG up to 5MB</p>
-                    <label className="mt-3 inline-flex cursor-pointer rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold text-brand-navy">
-                      Upload Images
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(event) => setFiles(Array.from(event.target.files || []))}
-                      />
-                    </label>
-                  </div>
-                </div>
-                {files.length > 0 && (
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500">
-                    {files.map((file) => (
-                      <div key={file.name} className="rounded-xl border border-slate-200 px-3 py-2">
-                        {file.name}
+                      <Icon className={isActive ? "text-amber-500" : "text-blue-500"} size={20} />
+                      <div>
+                        <div className={`text-[14px] font-bold ${isActive ? "text-slate-900" : "text-slate-700"}`}>
+                          {category.name.replace(" Services", "")}
+                        </div>
+                        <div className="text-[12px] text-slate-500 line-clamp-1">
+                          {category.services.map(s => s.name.split(' ')[0]).slice(0,3).join(', ')}...
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <p className="text-sm font-semibold text-brand-navy">Resources & Quantity</p>
-                <div className="mt-4 space-y-3 text-sm text-slate-600">
-                  <div className="flex items-center justify-between">
-                    <span>Resources Required</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setResources((prev) => Math.max(1, prev - 1))}
-                        className="rounded-full border border-slate-200 p-1"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span>{resources}</span>
-                      <button
-                        type="button"
-                        onClick={() => setResources((prev) => prev + 1)}
-                        className="rounded-full border border-slate-200 p-1"
-                      >
-                        <Plus size={12} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Quantity</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                        className="rounded-full border border-slate-200 p-1"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span>{quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => setQuantity((prev) => prev + 1)}
-                        className="rounded-full border border-slate-200 p-1"
-                      >
-                        <Plus size={12} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                      {isActive && <ChevronDown size={16} className="text-amber-500 -rotate-90 ml-auto" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          )}
-
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-            {activeStep > 0 && activeStep < 2 && (
-              <button
-                type="button"
-                onClick={() => setActiveStep((prev) => Math.max(prev - 1, 0))}
-                className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-500"
-              >
-                Back
-              </button>
-            )}
-            {activeStep === 0 && (
-              <button
-                type="button"
-                onClick={() => setActiveStep(1)}
-                className="rounded-full bg-brand-navy px-6 py-2 text-sm font-semibold text-white"
-              >
-                Review & Book
-              </button>
-            )}
-            {activeStep === 1 && (
-              <button
-                type="button"
-                onClick={() => setActiveStep(2)}
-                className="rounded-full bg-brand-gold px-6 py-2 text-sm font-semibold text-brand-navy"
-              >
-                Submit Quote Request
-              </button>
-            )}
           </div>
+
+          {/* MIDDLE COLUMN: Service List */}
+          <div className="flex flex-col gap-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm min-h-[500px]">
+              <div className="mb-6">
+                <h2 className="text-lg font-bold text-slate-800">
+                  {isPopular ? "Popular Services" : selectedCategory} in {initialSelection.location || "10001"}
+                </h2>
+                <p className="text-[13px] text-slate-500 mt-1">Based on your location</p>
+              </div>
+
+              <div className="grid gap-3">
+                {categoryData.services.map((service) => {
+                  const isSelected = selectedService === service.name;
+                  return (
+                    <div
+                      key={service.name}
+                      onClick={() => handleServiceSelect(service.name)}
+                      className={`flex items-center justify-between rounded-xl border p-4 cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-amber-400 bg-amber-50/30 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 hover:shadow-sm"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200 shrink-0">
+                          {serviceIcons[service.name] ? React.createElement(serviceIcons[service.name], {size: 24, className: "text-blue-500"}) : (categoryIcons[selectedCategory] ? React.createElement(categoryIcons[selectedCategory], {size: 24, className: "text-blue-500"}) : <Monitor size={24} className="text-blue-500" />)}
+                        </div>
+                        <div>
+                          <h4 className="text-[14px] font-bold text-slate-800">{service.name}</h4>
+                          <p className="text-[12px] text-slate-500 mt-0.5 line-clamp-1">Includes standard setup and installation.</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 pl-4">
+                        <span className="text-[15px] font-bold text-slate-800 whitespace-nowrap">${service.basePrice}</span>
+                        <div className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
+                          isSelected ? "bg-amber-400 border-amber-400 text-white" : "border-slate-300 bg-white"
+                        }`}>
+                          {isSelected && <CheckCircle2 size={14} />}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              <button className="mt-6 w-full py-3 text-[14px] font-semibold text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2">
+                Show more services <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Selection & Help */}
+          <div className="flex flex-col gap-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm h-[320px] flex flex-col">
+              <h3 className="text-[15px] font-bold text-slate-800 mb-6">Your Selection</h3>
+              
+              {!serviceData ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <div className="h-20 w-20 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 border border-slate-100">
+                    <CheckCircle2 size={32} className="text-slate-300" />
+                  </div>
+                  <h4 className="text-[15px] font-bold text-slate-700">No service selected yet</h4>
+                  <p className="text-[13px] text-slate-500 mt-2 max-w-[200px]">Please select a service from the list to continue.</p>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col">
+                   <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-100">
+                      <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                         {serviceIcons[serviceData.name] ? React.createElement(serviceIcons[serviceData.name], {size: 24, className: "text-blue-500"}) : (categoryIcons[selectedCategory] ? React.createElement(categoryIcons[selectedCategory], {size: 24, className: "text-blue-500"}) : <Monitor size={24} className="text-blue-500" />)}
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-bold text-slate-800 leading-tight">{serviceData.name}</h4>
+                        <p className="text-[12px] text-slate-500 mt-1">${serviceData.basePrice}</p>
+                      </div>
+                   </div>
+                   <div className="mt-auto">
+                     <p className="text-[12px] text-slate-500 text-center">Ready to proceed to details below.</p>
+                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-[15px] font-bold text-slate-800 mb-2">Need help?</h3>
+              <p className="text-[13px] text-slate-500 mb-5">Our support team is ready to assist you.</p>
+              <a href="tel:+18001234567" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors font-bold text-[14px] text-slate-800">
+                <Phone size={16} /> (800) 123-4567
+              </a>
+            </div>
+          </div>
+
         </div>
+
+        {/* BOTTOM SECTION: Details, Upload, Pricing (Only fully active if service selected) */}
+        <div className={`mt-6 grid gap-6 lg:grid-cols-[1.5fr_1.5fr_1fr] transition-opacity duration-300 ${!serviceData ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+          
+          {/* Service Details Config */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+             <h3 className="text-[15px] font-bold text-slate-800 mb-6">Service Details</h3>
+             
+             <div className="flex items-center justify-between mb-6">
+                <div className="w-2/3">
+                  <p className="text-[12px] font-bold text-slate-500 mb-2">Selected Service</p>
+                  <div className="flex items-center justify-between border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50/50">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded bg-white flex items-center justify-center border border-slate-200 shrink-0 shadow-sm">
+                        {serviceData && serviceIcons[serviceData.name] ? React.createElement(serviceIcons[serviceData.name], {size: 16, className: "text-blue-500"}) : <Monitor size={14} className="text-slate-600" />}
+                      </div>
+                      <span className="text-[14px] font-bold text-slate-800">{serviceData?.name || "None"}</span>
+                    </div>
+                    <span className="text-[14px] font-bold text-green-600">${serviceData?.basePrice || "0"}</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-[12px] font-bold text-slate-500 mb-2">Quantity</p>
+                  <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden h-[42px]">
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 h-full hover:bg-slate-50 text-slate-500 flex items-center justify-center border-r border-slate-200"><Minus size={14} /></button>
+                    <div className="w-10 text-center text-[14px] font-bold">{quantity}</div>
+                    <button onClick={() => setQuantity(quantity + 1)} className="px-3 h-full hover:bg-slate-50 text-slate-500 flex items-center justify-center border-l border-slate-200"><Plus size={14} /></button>
+                  </div>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <p className="text-[12px] font-bold text-slate-500 mb-2">Preferred Date</p>
+                  <div className="relative">
+                    <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input 
+                      type="date" 
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-[14px] text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[12px] font-bold text-slate-500 mb-2">Preferred Time</p>
+                  <div className="relative">
+                    <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <select 
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-[14px] text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 appearance-none bg-white"
+                    >
+                      <option value="" disabled>Select time</option>
+                      <option value="morning">Morning (8 AM - 12 PM)</option>
+                      <option value="afternoon">Afternoon (12 PM - 4 PM)</option>
+                      <option value="evening">Evening (4 PM - 8 PM)</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
+                </div>
+             </div>
+
+             <div>
+                <p className="text-[12px] font-bold text-slate-500 mb-2">Add Notes (Optional)</p>
+                <textarea 
+                  rows={3}
+                  placeholder="Please share any specific instructions or details..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-[14px] text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 resize-none"
+                />
+                <div className="text-right mt-1 text-[11px] text-slate-400">{notes.length}/250</div>
+             </div>
+          </div>
+
+          {/* Upload Pictures */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col">
+             <div className="mb-4">
+               <h3 className="text-[15px] font-bold text-slate-800">Upload Pictures (Optional)</h3>
+               <p className="text-[13px] text-slate-500 mt-1">Help us understand your requirement better</p>
+             </div>
+             
+             <div className="flex-1 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-blue-100 bg-blue-50/30 p-6 text-center cursor-pointer hover:bg-blue-50/60 transition-colors relative">
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={(e) => setFiles(prev => [...prev, ...Array.from(e.target.files)])}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 mb-3">
+                  <CloudUpload size={24} className="text-blue-600" />
+                </div>
+                <p className="text-[14px] font-bold text-slate-800"><span className="text-blue-600">Click to upload</span> or drag & drop</p>
+                <p className="text-[12px] text-slate-500 mt-1">PNG, JPG, JPEG up to 5MB each</p>
+             </div>
+
+             {files.length > 0 && (
+               <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+                 {files.map((file, i) => (
+                   <div key={i} className="relative h-20 w-20 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                     <img src={URL.createObjectURL(file)} alt={`upload-${i}`} className="w-full h-full object-cover" />
+                     <button 
+                       onClick={() => removeFile(i)}
+                       className="absolute top-1 right-1 h-5 w-5 rounded-full bg-white shadow flex items-center justify-center hover:bg-slate-100"
+                     >
+                       <X size={12} className="text-slate-600" />
+                     </button>
+                   </div>
+                 ))}
+               </div>
+             )}
+          </div>
+
+          {/* Price Summary */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col">
+            <h3 className="text-[15px] font-bold text-slate-800 mb-6">Price Summary</h3>
+            
+            <div className="flex-1">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-[14px] font-bold text-slate-800">{serviceData?.name || "No Service"}</p>
+                  <p className="text-[13px] text-slate-500 mt-1">Quantity</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[14px] font-bold text-slate-800">${basePrice.toFixed(2)}</p>
+                  <p className="text-[13px] text-slate-500 mt-1">x{quantity}</p>
+                </div>
+              </div>
+              
+              <div className="my-4 border-t border-slate-100"></div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-slate-600">Subtotal</span>
+                  <span className="font-bold text-slate-800">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-slate-600 flex items-center gap-1">Service Fee <div className="h-3 w-3 rounded-full border border-slate-300 text-[9px] flex items-center justify-center text-slate-400">i</div></span>
+                  <span className="font-bold text-slate-800">${serviceFee.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="my-4 border-t border-slate-200 border-dashed"></div>
+
+              <div className="flex justify-between items-center mb-8">
+                <span className="text-[16px] font-bold text-slate-800">Total</span>
+                <span className="text-[20px] font-black text-green-600">${total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <button 
+              className={`w-full py-3.5 rounded-xl flex items-center justify-center gap-2 font-bold text-[15px] transition-transform active:scale-[0.98] ${
+                serviceData 
+                  ? "bg-amber-400 hover:bg-amber-500 text-slate-900 shadow-sm" 
+                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
+              }`}
+              disabled={!serviceData}
+              onClick={() => setActiveStep(4)}
+            >
+              Review & Book <ArrowRight size={18} />
+            </button>
+            <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-slate-500">
+              <Lock size={12} /> Secure booking. No hidden charges.
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
   );
