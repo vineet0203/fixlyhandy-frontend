@@ -23,6 +23,21 @@ const STATUS_STYLES = {
         bg: "#fef2f2",
         border: "#fecaca",
     },
+    pending: {
+        color: "#d97706",
+        bg: "#fef3c7",
+        border: "#fde68a",
+    },
+    accepted: {
+        color: "#16a34a",
+        bg: "#f0fdf4",
+        border: "#bbf7d0",
+    },
+    rejected: {
+        color: "#dc2626",
+        bg: "#fef2f2",
+        border: "#fecaca",
+    },
 };
 
 const QuoteStatusChip = ({ status }) => {

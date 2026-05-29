@@ -205,6 +205,48 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [matchedProviders, setMatchedProviders] = useState(0);
 
+  const [matchingVendors, setMatchingVendors] = useState([]);
+  const [selectedVendors, setSelectedVendors] = useState([]);
+  const [loadingVendors, setLoadingVendors] = useState(false);
+
+  useEffect(() => {
+    if (!selectedCategory || !selectedService) {
+      setMatchingVendors([]);
+      setSelectedVendors([]);
+      return;
+    }
+
+    const fetchMatchingVendors = async () => {
+      setLoadingVendors(true);
+      try {
+        const matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
+          SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
+        ) || 'home_repair';
+
+        const matchedSubCategory = SERVICE_CATEGORIES[matchedCategory]?.subcategories.find(
+          sub => sub.label === selectedService
+        )?.value || selectedService.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/public/vendors`, {
+          params: {
+            service_category: matchedCategory,
+            service_sub_category: matchedSubCategory
+          }
+        });
+
+        const vendors = response.data?.data || [];
+        setMatchingVendors(vendors);
+        setSelectedVendors(vendors.map(v => v.id));
+      } catch (err) {
+        console.error("Failed to fetch matching vendors:", err);
+      } finally {
+        setLoadingVendors(false);
+      }
+    };
+
+    fetchMatchingVendors();
+  }, [selectedCategory, selectedService]);
+
   const categoryData = useMemo(() => {
     return catalog.find((category) => category.name === selectedCategory) || catalog[0];
   }, [catalog, selectedCategory]);
@@ -611,6 +653,59 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
         {activeStep === 4 && !submitSuccess && (
           <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm max-w-3xl mx-auto">
             <h3 className="text-[18px] font-bold text-slate-800 mb-6 text-center">Complete Your Booking</h3>
+
+            {/* Vendor Selection Section */}
+            <div className="mb-8 border-b border-slate-100 pb-6">
+              <h4 className="text-[15px] font-bold text-slate-800 mb-3">Select Service Providers</h4>
+              <p className="text-[13px] text-slate-500 mb-4">Select the vendors you want to receive your quote request (Select 1 to 5):</p>
+              
+              {loadingVendors ? (
+                <div className="text-center py-4 text-slate-500 text-sm">Searching for matching service providers...</div>
+              ) : matchingVendors.length === 0 ? (
+                <div className="text-center py-4 text-red-500 text-sm font-semibold">No service providers found for this service. You will not be able to submit this request.</div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {matchingVendors.map((vendor) => {
+                    const isSelected = selectedVendors.includes(vendor.id);
+                    return (
+                      <div 
+                        key={vendor.id}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedVendors(selectedVendors.filter(id => id !== vendor.id));
+                          } else {
+                            if (selectedVendors.length < 5) {
+                              setSelectedVendors([...selectedVendors, vendor.id]);
+                            } else {
+                              alert('You can select up to 5 vendors.');
+                            }
+                          }
+                        }}
+                        className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-all ${
+                          isSelected
+                            ? "border-amber-400 bg-amber-50/20 shadow-sm"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`}
+                      >
+                        <input 
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}} // handled by parent onClick
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500 pointer-events-none"
+                        />
+                        <div>
+                          <h5 className="text-[14px] font-bold text-slate-800">{vendor.business_name}</h5>
+                          {vendor.service_description && (
+                            <p className="text-[12px] text-slate-500 mt-1 line-clamp-2">{vendor.service_description}</p>
+                          )}
+                          <p className="text-[11px] text-slate-400 mt-1">{vendor.mobile_number || 'No phone'} • {vendor.email}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
@@ -670,6 +765,14 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
               </button>
               <button 
                 onClick={async () => {
+                  if (selectedVendors.length === 0) {
+                    alert('Please select at least one vendor.');
+                    return;
+                  }
+                  if (selectedVendors.length > 5) {
+                    alert('Please select up to 5 vendors.');
+                    return;
+                  }
                   if (!formData.name || !formData.email || !formData.phone || !formData.address) {
                     alert('Please fill out all contact details.');
                     return;
@@ -698,7 +801,11 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
                       service_sub_category: matchedSubCategory,
                       date: startDate,
                       time: startTime,
-                      notes: notes
+                      notes: notes,
+                      vendor_ids: selectedVendors,
+                      service_name: serviceData?.name,
+                      unit_price: serviceData?.basePrice,
+                      quantity: quantity
                     });
                     
                     setMatchedProviders(response.data.data.matched_providers);
@@ -710,8 +817,8 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
                     setIsSubmitting(false);
                   }
                 }}
-                disabled={isSubmitting}
-                className="px-8 py-3 bg-brand-navy text-white rounded-xl font-bold flex items-center gap-2 hover:bg-slate-800 disabled:opacity-70"
+                disabled={isSubmitting || selectedVendors.length === 0}
+                className="px-8 py-3 bg-brand-navy text-white rounded-xl font-bold flex items-center gap-2 hover:bg-slate-800 disabled:opacity-50"
               >
                 {isSubmitting ? 'Confirming...' : 'Confirm Booking'} <CheckCircle2 size={18} />
               </button>

@@ -33,11 +33,10 @@ const FieldRow = ({ label, value }) => (
   </Grid>
 );
 
-const QuotePreviewModal = ({ open, quote, onClose, onEdit }) => {
+const QuotePreviewModal = ({ open, quote, onClose, onEdit, onSuccess }) => {
   const [fullQuote, setFullQuote] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -271,6 +270,44 @@ const QuotePreviewModal = ({ open, quote, onClose, onEdit }) => {
         )}
       </DialogContent>
       <DialogActions>
+        {displayedQuote?.status?.toLowerCase() === 'pending' && (
+          <>
+            <Button 
+              color="error" 
+              variant="outlined" 
+              onClick={async () => {
+                if (window.confirm('Are you sure you want to reject this lead/quote request?')) {
+                  try {
+                    await quoteService.rejectQuote(displayedQuote.id);
+                    onSuccess?.();
+                    onClose();
+                  } catch (err) {
+                    alert(err.message || 'Failed to reject quote.');
+                  }
+                }
+              }}
+            >
+              Reject
+            </Button>
+            <Button 
+              color="success" 
+              variant="contained" 
+              onClick={async () => {
+                if (window.confirm('Are you sure you want to accept this lead/quote request?')) {
+                  try {
+                    await quoteService.acceptQuote(displayedQuote.id);
+                    onSuccess?.();
+                    onClose();
+                  } catch (err) {
+                    alert(err.message || 'Failed to accept quote.');
+                  }
+                }
+              }}
+            >
+              Accept
+            </Button>
+          </>
+        )}
         <Button onClick={onClose}>Close</Button>
         <Button onClick={() => onEdit?.(displayedQuote.id)} variant="contained" disabled={!displayedQuote.can_edit}>
           Edit Quote

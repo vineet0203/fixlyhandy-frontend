@@ -212,6 +212,30 @@ class QuoteService extends BaseApiService {
       throw error;
     }
   }
+
+  async acceptQuote(id) {
+    try {
+      const url = this.buildUrl(`/quotes/${id}/accept`);
+      const response = await this.client.post(url);
+      const quoteData = response?.data?.data || response?.data || response;
+      return transformQuoteFromApi(quoteData);
+    } catch (error) {
+      console.error(`Error accepting quote ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async rejectQuote(id) {
+    try {
+      const url = this.buildUrl(`/quotes/${id}/reject`);
+      const response = await this.client.post(url);
+      const quoteData = response?.data?.data || response?.data || response;
+      return transformQuoteFromApi(quoteData);
+    } catch (error) {
+      console.error(`Error rejecting quote ${id}:`, error);
+      throw error;
+    }
+  }
 }
 
 export default new QuoteService();

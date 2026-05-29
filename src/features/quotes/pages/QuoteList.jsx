@@ -213,6 +213,7 @@ const QuoteList = () => {
                     handleClosePreview();
                     handleEdit(quoteId);
                 }}
+                onSuccess={refresh}
             />
         </div>
     );

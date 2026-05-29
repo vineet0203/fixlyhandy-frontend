@@ -64,6 +64,8 @@ const Sidebar = () => {
 
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : { name: 'John Doe', role: 'Service Provider' };
+  const displayName = user.full_name || user.name || (user.vendor ? user.vendor.business_name : 'John Doe');
+  const displayRole = user.primary_role ? user.primary_role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : (user.role || 'Service Provider');
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-[260px] bg-white border-r border-slate-200 z-50 flex flex-col">
@@ -83,16 +85,18 @@ const Sidebar = () => {
             Online
           </div>
           <div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center font-bold text-slate-500 overflow-hidden">
-            <img src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff" alt="User" />
+            <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff`} alt="User" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-800 truncate">{user.name || 'John Doe'}</p>
-            <p className="text-xs text-slate-500 truncate">{user.role || 'Service Provider'}</p>
-            <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[#ffb800] text-[10px]">★</span>
-              <span className="text-[10px] font-semibold text-slate-700">4.8</span>
-              <span className="text-[10px] text-slate-400">(126 reviews)</span>
-            </div>
+            <p className="text-sm font-bold text-slate-800 truncate">{displayName}</p>
+            <p className="text-xs text-slate-500 truncate">{displayRole}</p>
+            {user.vendor && (user.vendor.service_category || user.vendor.service_sub_category) && (
+              <p className="text-[10px] font-medium text-[#ffb800] bg-orange-50 border border-orange-100 rounded px-1.5 py-0.5 mt-1 inline-block truncate max-w-full">
+                {user.vendor.service_sub_category
+                  ? user.vendor.service_sub_category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                  : user.vendor.service_category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              </p>
+            )}
           </div>
         </div>
       </div>
