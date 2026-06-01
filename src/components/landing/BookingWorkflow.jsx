@@ -204,6 +204,7 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [matchedProviders, setMatchedProviders] = useState(0);
+  const [isNewCustomer, setIsNewCustomer] = useState(false);
 
   const [matchingVendors, setMatchingVendors] = useState([]);
   const [selectedVendors, setSelectedVendors] = useState([]);
@@ -818,6 +819,7 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
                     const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/public/bookings`, payload);
                     
                     setMatchedProviders(response.data.data.matched_providers);
+                    setIsNewCustomer(response.data.data.is_new_customer);
                     setSubmitSuccess(true);
                   } catch (error) {
                     console.error('Booking failed:', error);
@@ -846,7 +848,10 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
               We have successfully received your booking. We found <strong>{matchedProviders}</strong> verified service providers in your area for this service.
             </p>
             <p className="text-slate-500 text-[14px]">
-              They have been notified and will send you their quotes shortly. Please check your email ({formData.email}) for further details and to review incoming quotes.
+              They have been notified and will send you their quotes shortly.{' '}
+              {isNewCustomer
+                ? `A password setup link has been sent to ${formData.email}. Please set your password and login to your customer panel to review incoming quotes.`
+                : `Please login to your customer panel at customer.trakjobs.com to review incoming quotes.`}
             </p>
           </div>
         )}
