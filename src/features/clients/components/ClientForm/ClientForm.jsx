@@ -9,6 +9,7 @@ import AvailabilitySchedule from './AvailabilitySchedule';
 import FormActions from './FormActions';
 import { clientValidationSchema } from '../../schemas/clientValidationSchemas';
 import { INITIAL_CLIENT_VALUES } from '../../constants/clientConstants';
+import FormSubmitListener from '../../../../components/common/form/FormSubmitListener';
 
 const ClientForm = ({
   onSubmit,
@@ -105,6 +106,7 @@ const ClientForm = ({
     >
       {(formikProps) => (
         <Form>
+          <FormSubmitListener />
           <Paper sx={{ p: 4, borderRadius: 2 }}>
             <ClientTypeSelector
               clientType={clientType}

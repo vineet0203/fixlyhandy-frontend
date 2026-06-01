@@ -11,6 +11,8 @@ import ClientApprovalSection from './ClientApprovalSection';
 import FollowUpRemindersSection from './FollowUpRemindersSection';
 import QuoteFormActions from './QuoteFormActions';
 import { calculateQuoteTotals } from '../../utils/quoteTransformers';
+import FormSubmitListener from '../../../../components/common/form/FormSubmitListener';
+import { formatApiError } from '../../../../utils/errorHelper';
 
 // Watches for client_id changes and auto-populates tax_rate on line items
 const ClientTaxSync = ({ formik, clients, isEditMode }) => {
@@ -211,11 +213,12 @@ const QuoteForm = ({
 
         return (
           <Form>
+            <FormSubmitListener />
             <ClientTaxSync formik={formik} clients={clients} isEditMode={isEditMode} />
             <Paper sx={{ p: 4, borderRadius: 2 }}>
               {submitError && (
                 <Alert severity="error" sx={{ mb: 3 }}>
-                  {submitError}
+                  {formatApiError(submitError)}
                 </Alert>
               )}
 

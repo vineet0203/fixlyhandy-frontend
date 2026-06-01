@@ -26,6 +26,8 @@ import {
     DESIGNATION_LABEL_TO_VALUE,
     DEPARTMENT_LABEL_TO_VALUE,
 } from "../../constants/employeeConstants";
+import FormSubmitListener from "../../../../components/common/form/FormSubmitListener";
+import { formatApiError } from "../../../../utils/errorHelper";
 
 const EmployeeModal = ({
     open,
@@ -165,7 +167,7 @@ const EmployeeModal = ({
             resetForm();
             onClose();
         } catch (error) {
-            showToast(error.message || `Failed to ${mode} employee`, "error");
+            showToast(formatApiError(error), "error");
         } finally {
             setIsSubmitting(false);
             setAction(null);
@@ -232,6 +234,7 @@ const EmployeeModal = ({
                 {(formikProps) => {
                     return (
                         <Form>
+                            <FormSubmitListener />
                             {/* Header */}
                             <DialogTitle
                                 sx={{

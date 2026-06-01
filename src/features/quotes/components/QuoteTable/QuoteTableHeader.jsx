@@ -40,7 +40,7 @@ const QuoteTableHeader = ({ selectAll = false, onSelectAll, showCheckbox = true 
 
         <TableCell sx={{ width: 100 }}>Quote </TableCell>
         <TableCell sx={{ width: 200 }}>Quote Title</TableCell>
-        <TableCell sx={{ width: 180 }}>Client Name</TableCell>
+        <TableCell sx={{ width: 180 }}>Organization Name</TableCell>
         <TableCell sx={{ width: 120 }}>Issue Date</TableCell>
         <TableCell sx={{ width: 120 }}>Expiry Date</TableCell>
         <TableCell sx={{ width: 100 }}>Amount</TableCell>

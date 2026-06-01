@@ -6,6 +6,7 @@ import { useToast } from '../../../components/common/ToastProvider';
 import PageHeader from '../../../components/common/PageHeader';
 import PageLoader from '../../../components/common/Loader/PageLoader';
 import ClientForm from '../components/ClientForm/ClientForm';
+import { formatApiError } from '../../../utils/errorHelper';
 
 const ClientEdit = () => {
   const { id } = useParams();
@@ -41,7 +42,7 @@ const ClientEdit = () => {
       showToast('Customer updated successfully!', 'success');
       navigate('/customers');
     } catch (error) {
-      showToast(error || 'Failed to update client', 'error');
+      showToast(formatApiError(error), 'error');
       console.error('Failed to update client:', error);
     }
   };

@@ -5,6 +5,7 @@ import { useClients } from '../hooks/useClients';
 import { useToast } from '../../../components/common/ToastProvider';
 import PageHeader from '../../../components/common/PageHeader';
 import ClientForm from '../components/ClientForm/ClientForm';
+import { formatApiError } from '../../../utils/errorHelper';
 
 const ClientCreate = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const ClientCreate = () => {
       showToast('Customer created successfully!', 'success');
       navigate('/customers');
     } catch (error) {
-      showToast(error || 'Failed to create client', 'error');
+      showToast(formatApiError(error), 'error');
       console.error('Failed to create client:', error);
     }
   };
@@ -32,7 +33,7 @@ const ClientCreate = () => {
       showToast('Customer created successfully!', 'success');
       navigate(`/quotes/create?clientId=${newClient.id}`);
     } catch (error) {
-      showToast(error || 'Failed to create client', 'error');
+      showToast(formatApiError(error), 'error');
       console.error('Failed to create client:', error);
     }
   };
