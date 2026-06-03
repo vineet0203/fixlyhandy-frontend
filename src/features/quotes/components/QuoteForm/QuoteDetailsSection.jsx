@@ -794,6 +794,33 @@ const QuoteDetailsSection = ({ formik, clients = [], loadingClients = false }) =
             </Box>
           </Box>
         </Grid>
+
+        {(formik.values.booking_location || formik.values.booking_date || formik.values.booking_time) && (
+          <Grid item xs={12}>
+            <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#f9fafb', border: '1px solid #e5e7eb' }}>
+              <Typography variant='subtitle2' sx={{ mb: 1.5, color: '#183B59', fontWeight: 600 }}>
+                Booking Details
+              </Typography>
+              <Grid container spacing={2}>
+                {formik.values.booking_location && (
+                  <Grid item xs={12} md={4}>
+                    <TextField label='Location' value={formik.values.booking_location} fullWidth size='small' InputProps={{ readOnly: true }} InputLabelProps={{ shrink: true }} />
+                  </Grid>
+                )}
+                {formik.values.booking_date && (
+                  <Grid item xs={12} md={4}>
+                    <TextField label='Date' value={formik.values.booking_date} fullWidth size='small' InputProps={{ readOnly: true }} InputLabelProps={{ shrink: true }} />
+                  </Grid>
+                )}
+                {formik.values.booking_time && (
+                  <Grid item xs={12} md={4}>
+                    <TextField label='Time' value={formik.values.booking_time} fullWidth size='small' InputProps={{ readOnly: true }} InputLabelProps={{ shrink: true }} />
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          </Grid>
+        )}
       </Grid>
     </Paper>
   );

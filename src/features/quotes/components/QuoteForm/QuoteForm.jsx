@@ -113,6 +113,11 @@ const QuoteForm = ({
     job_id: initialData.job_id || '',
     converted_at: initialData.converted_at || null,
 
+    // Booking Info (read-only, from online booking)
+    booking_location: initialData.booking_location || '',
+    booking_date: initialData.booking_date || '',
+    booking_time: initialData.booking_time || '',
+
     // Meta
     notes: initialData.notes || '',
     expires_at: initialData.expires_at || null,
