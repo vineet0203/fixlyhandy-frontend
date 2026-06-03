@@ -20,6 +20,10 @@ const ClientTaxSync = ({ formik, clients, isEditMode }) => {
 
   useEffect(() => {
     const currentClientId = formik.values.client_id;
+    if (isEditMode && currentClientId === formik.initialValues.client_id) {
+      prevClientIdRef.current = currentClientId;
+      return;
+    }
     if (currentClientId && currentClientId !== prevClientIdRef.current) {
       const client = clients.find(c => String(c.id) === String(currentClientId));
       if (client) {
