@@ -29,7 +29,7 @@ const HowItWorksSection = () => {
             A modern field service workflow
           </h2>
           <p className="mt-3 text-slate-600">
-            TrakJobs orchestrates every step from booking to payment.
+            FixlyHandy orchestrates every step from booking to payment.
           </p>
         </motion.div>
 

@@ -10,7 +10,7 @@ const Footer = () => {
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gold text-brand-navy">
               TJ
             </span>
-            <span className="text-brand-gold">TRAKJOBS</span>
+            <span className="text-brand-gold">FIXLYHANDY</span>
           </div>
           <p className="mt-4 text-sm text-slate-300">
             Your trusted partner for service marketplace operations, vendor management, and
@@ -62,7 +62,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs text-slate-400">
-        © 2024 TRAKJOBS. All rights reserved.
+        © 2024 FIXLYHANDY. All rights reserved.
       </div>
     </footer>
   );

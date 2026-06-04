@@ -257,7 +257,7 @@ class ErrorBoundary extends Component {
                   <Tooltip title="Report this issue">
                     <IconButton
                       color="primary"
-                      onClick={() => window.location.href = 'mailto:support@trakjobs.com?subject=Error Report'}
+                      onClick={() => window.location.href = 'mailto:support@fixlyhandy.com?subject=Error Report'}
                     >
                       <Email />
                     </IconButton>
@@ -343,7 +343,7 @@ class ErrorBoundary extends Component {
                     Still having issues? Contact our support team
                   </Typography>
                   <Link
-                    href="mailto:support@trakjobs.com"
+                    href="mailto:support@fixlyhandy.com"
                     underline="hover"
                     sx={{
                       display: 'inline-flex',
@@ -354,7 +354,7 @@ class ErrorBoundary extends Component {
                     }}
                   >
                     <Email fontSize="small" />
-                    support@trakjobs.com
+                    support@fixlyhandy.com
                   </Link>
                 </Box>
 

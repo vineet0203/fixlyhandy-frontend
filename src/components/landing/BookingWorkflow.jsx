@@ -839,7 +839,7 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
               They have been notified and will send you their quotes shortly.{' '}
               {isNewCustomer
                 ? `A password setup link has been sent to ${formData.email}. Please set your password and login to your customer panel to review incoming quotes.`
-                : `Please login to your customer panel at customer.trakjobs.com to review incoming quotes.`}
+                : `Please login to your customer panel at customer.fixlyhandy.com to review incoming quotes.`}
             </p>
           </div>
         )}

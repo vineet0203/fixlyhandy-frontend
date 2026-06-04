@@ -18,7 +18,7 @@ const getApiBaseUrl = () => {
 export const API_BASE_URL = getApiBaseUrl();
 
 // Application Name
-export const APP_NAME = "TrakJobs";
+export const APP_NAME = "FixlyHandy";
 
 // Navigation Items
 export const NAV_ITEMS = [

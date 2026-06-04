@@ -171,7 +171,7 @@ const InvoicePDFView = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid #eee' }}>
             <div>
               <div style={{ display: 'inline-block', background: '#2e74d0', color: '#fff', padding: '7px 14px', borderRadius: '6px', fontWeight: '700', fontSize: '16px', marginBottom: '14px' }}>
-                TRAKJOBS
+                FIXLYHANDY
               </div>
               <div style={{ fontSize: '20px', fontWeight: '700', color: '#1f2937', marginBottom: '4px' }}>{customer.name}</div>
               <div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>{customer.address}</div>
