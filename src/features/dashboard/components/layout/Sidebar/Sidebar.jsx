@@ -24,6 +24,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import UnreadBadge from '../../../../messages/components/UnreadBadge';
+import logoBlue from '../../../../../assets/logo_blue.png';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -73,11 +74,8 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-[260px] bg-white border-r border-slate-200 z-50 flex flex-col">
       {/* Sidebar Header */}
-      <div className="w-full h-[76px] flex items-center pl-6 border-b border-slate-100">
-        <h1 className="font-bold text-2xl text-slate-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-md bg-[#ffb800] text-white flex items-center justify-center text-sm font-extrabold">T</span>
-          Trak<span className="text-[#ffb800]">Jobs</span>
-        </h1>
+      <div className="w-full h-[76px] flex items-center pl-6 border-b border-slate-100 overflow-visible">
+        <img src={logoBlue} alt="FixlyHandy Logo" className="h-[40px] w-auto object-contain scale-[2.5] origin-left ml-2" />
       </div>
 
       {/* Profile Card */}
