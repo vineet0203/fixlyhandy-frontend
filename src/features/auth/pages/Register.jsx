@@ -325,7 +325,7 @@ const Register = () => {
                                         const firstSelected = services.find(s => s.id === nextIds[0]);
                                         if (firstSelected) {
                                           setFieldValue('service_category', firstSelected.category);
-                                          setFieldValue('service_sub_category', firstSelected.title);
+                                          setFieldValue('service_sub_category', firstSelected.sub_category || firstSelected.title);
                                         }
                                       } else {
                                         setFieldValue('service_category', '');

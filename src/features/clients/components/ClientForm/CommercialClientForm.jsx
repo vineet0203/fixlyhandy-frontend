@@ -20,14 +20,17 @@ import {
 import { categoryService } from '../../../../services/categoryService';
 
 const CommercialClientForm = ({ formik, mode = 'create' }) => {
+  const [rawCategories, setRawCategories] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState(MAIN_CATEGORY_OPTIONS);
+  const [subcategoryOptions, setSubcategoryOptions] = useState([]);
 
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const data = await categoryService.fetchCategories();
         if (data && data.length > 0) {
-          setCategoryOptions(data);
+          setRawCategories(data);
+          setCategoryOptions(data.map(c => ({ value: c.slug, label: c.name })));
         }
       } catch (err) {
         console.warn("Failed to fetch dynamic categories, using hardcoded fallback", err);
@@ -37,9 +40,34 @@ const CommercialClientForm = ({ formik, mode = 'create' }) => {
   }, []);
 
   const selectedMainCategory = formik.values.service_category;
-  const subcategoryOptions = selectedMainCategory && SERVICE_CATEGORIES[selectedMainCategory] 
-    ? SERVICE_CATEGORIES[selectedMainCategory].subcategories 
-    : [];
+
+  useEffect(() => {
+    const loadSubCategories = async () => {
+      if (!selectedMainCategory) {
+        setSubcategoryOptions([]);
+        return;
+      }
+      
+      const catObj = rawCategories.find(c => c.slug === selectedMainCategory);
+      if (catObj) {
+        try {
+          const subs = await categoryService.fetchSubCategories(catObj.id);
+          setSubcategoryOptions(subs);
+          return;
+        } catch (err) {
+          console.warn("Failed to fetch dynamic subcategories, falling back to static", err);
+        }
+      }
+      
+      // Fallback
+      const staticOptions = SERVICE_CATEGORIES[selectedMainCategory]
+        ? SERVICE_CATEGORIES[selectedMainCategory].subcategories
+        : [];
+      setSubcategoryOptions(staticOptions);
+    };
+
+    loadSubCategories();
+  }, [selectedMainCategory, rawCategories]);
 
   useEffect(() => {
     console.log('📋 CommercialClientForm - Formik State:', {

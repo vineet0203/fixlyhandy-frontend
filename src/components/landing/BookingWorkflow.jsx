@@ -193,6 +193,29 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [files, setFiles] = useState([]);
+  const [dynamicCategories, setDynamicCategories] = useState([]);
+  const [dynamicSubCategories, setDynamicSubCategories] = useState([]);
+
+  useEffect(() => {
+    const loadDynamicMapping = async () => {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+        const [catRes, subRes] = await Promise.all([
+          axios.get(`${apiBaseUrl}/api/v1/public/service-categories`),
+          axios.get(`${apiBaseUrl}/api/v1/service-sub-categories`),
+        ]);
+        if (catRes.data && catRes.data.success) {
+          setDynamicCategories(catRes.data.data);
+        }
+        if (subRes.data && subRes.data.success) {
+          setDynamicSubCategories(subRes.data.data);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch dynamic mappings in BookingWorkflow:", err);
+      }
+    };
+    loadDynamicMapping();
+  }, []);
 
   // Step 4 state
   const [formData, setFormData] = useState({
@@ -220,13 +243,29 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
     const fetchMatchingVendors = async () => {
       setLoadingVendors(true);
       try {
-        const matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
-          SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
-        ) || 'home_repair';
+        let matchedCategory = dynamicCategories.find(
+          c => c.name === selectedCategory || c.name === selectedCategory + " Services"
+        )?.slug;
 
-        const matchedSubCategory = SERVICE_CATEGORIES[matchedCategory]?.subcategories.find(
-          sub => sub.label === selectedService
-        )?.value || selectedService.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+        if (!matchedCategory) {
+          matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
+            SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
+          ) || 'home_repair';
+        }
+
+        const catObj = dynamicCategories.find(c => c.slug === matchedCategory);
+        let matchedSubCategory = null;
+        if (catObj) {
+          matchedSubCategory = dynamicSubCategories.find(
+            sub => sub.service_category_id === catObj.id && sub.name === selectedService
+          )?.slug;
+        }
+
+        if (!matchedSubCategory) {
+          matchedSubCategory = SERVICE_CATEGORIES[matchedCategory]?.subcategories.find(
+            sub => sub.label === selectedService
+          )?.value || selectedService.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+        }
 
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/public/vendors`, {
           params: {
@@ -773,13 +812,29 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
                   
                   setIsSubmitting(true);
                   try {
-                    const matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
-                      SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
-                    ) || 'home_repair';
+                    let matchedCategory = dynamicCategories.find(
+                      c => c.name === selectedCategory || c.name === selectedCategory + " Services"
+                    )?.slug;
 
-                    const matchedSubCategory = SERVICE_CATEGORIES[matchedCategory]?.subcategories.find(
-                      sub => sub.label === selectedService
-                    )?.value || selectedService.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+                    if (!matchedCategory) {
+                      matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
+                        SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
+                      ) || 'home_repair';
+                    }
+
+                    const catObj = dynamicCategories.find(c => c.slug === matchedCategory);
+                    let matchedSubCategory = null;
+                    if (catObj) {
+                      matchedSubCategory = dynamicSubCategories.find(
+                        sub => sub.service_category_id === catObj.id && sub.name === selectedService
+                      )?.slug;
+                    }
+
+                    if (!matchedSubCategory) {
+                      matchedSubCategory = SERVICE_CATEGORIES[matchedCategory]?.subcategories.find(
+                        sub => sub.label === selectedService
+                      )?.value || selectedService.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+                    }
 
                     const payload = new FormData();
                     payload.append('name', formData.name);
