@@ -150,3 +150,39 @@ export const INITIAL_CLIENT_VALUES = {
     notes: "",
   },
 };
+
+export const COUNTRY_OPTIONS = [
+  { value: "IN", label: "India" },
+  { value: "US", label: "United States" },
+  { value: "GB", label: "United Kingdom" },
+  { value: "AE", label: "UAE" },
+  { value: "SG", label: "Singapore" },
+  { value: "AU", label: "Australia" },
+  { value: "CA", label: "Canada" },
+  { value: "OTHER", label: "Other" },
+];
+
+export const PAYMENT_TERM_OPTIONS = [
+  { value: "immediate", label: "Immediate" },
+  { value: "net_7", label: "Net 7 Days" },
+  { value: "net_15", label: "Net 15 Days" },
+  { value: "net_30", label: "Net 30 Days" },
+  { value: "net_60", label: "Net 60 Days" },
+  { value: "net_90", label: "Net 90 Days" },
+];
+
+export const CURRENCY_OPTIONS = [
+  { value: "INR", label: "INR - Indian Rupee" },
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "GBP", label: "GBP - British Pound" },
+  { value: "EUR", label: "EUR - Euro" },
+  { value: "AED", label: "AED - UAE Dirham" },
+];
+
+export const TAX_PERCENTAGE_OPTIONS = [
+  { value: "0", label: "0%" },
+  { value: "5", label: "5%" },
+  { value: "12", label: "12%" },
+  { value: "18", label: "18%" },
+  { value: "28", label: "28%" },
+];
