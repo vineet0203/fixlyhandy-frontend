@@ -1,5 +1,5 @@
 // features/clients/components/ClientForm/ResidentialClientForm.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Paper, Box, Typography } from '@mui/material';
 import SectionHeader from '../../../../components/common/form/SectionHeader';
 import DebouncedTextField from '../../../../components/common/form/DebouncedTextField';
@@ -12,12 +12,57 @@ import {
   MAIN_CATEGORY_OPTIONS,
   SERVICE_CATEGORIES
 } from '../../constants/clientConstants'; // <-- add
+import { categoryService } from '../../../../services/categoryService';
 
 const ResidentialClientForm = ({ formik }) => {
+  const [rawCategories, setRawCategories] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState(MAIN_CATEGORY_OPTIONS);
+  const [subcategoryOptions, setSubcategoryOptions] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await categoryService.fetchCategories();
+        if (data && data.length > 0) {
+          setRawCategories(data);
+          setCategoryOptions(data.map(c => ({ value: c.slug, label: c.name })));
+        }
+      } catch (err) {
+        console.warn("Failed to fetch dynamic categories, using hardcoded fallback", err);
+      }
+    };
+    loadCategories();
+  }, []);
+
   const selectedMainCategory = formik.values.service_category;
-  const subcategoryOptions = selectedMainCategory && SERVICE_CATEGORIES[selectedMainCategory] 
-    ? SERVICE_CATEGORIES[selectedMainCategory].subcategories 
-    : [];
+
+  useEffect(() => {
+    const loadSubCategories = async () => {
+      if (!selectedMainCategory) {
+        setSubcategoryOptions([]);
+        return;
+      }
+      
+      const catObj = rawCategories.find(c => c.slug === selectedMainCategory);
+      if (catObj) {
+        try {
+          const subs = await categoryService.fetchSubCategories(catObj.id);
+          setSubcategoryOptions(subs);
+          return;
+        } catch (err) {
+          console.warn("Failed to fetch dynamic subcategories, falling back to static", err);
+        }
+      }
+      
+      // Fallback
+      const staticOptions = SERVICE_CATEGORIES[selectedMainCategory]
+        ? SERVICE_CATEGORIES[selectedMainCategory].subcategories
+        : [];
+      setSubcategoryOptions(staticOptions);
+    };
+
+    loadSubCategories();
+  }, [selectedMainCategory, rawCategories]);
 
   return (
     <>
@@ -123,7 +168,7 @@ const ResidentialClientForm = ({ formik }) => {
                 formik.setFieldValue('service_category', value);
                 formik.setFieldValue('service_sub_category', ''); // Reset subcategory when main changes
               }}
-              options={MAIN_CATEGORY_OPTIONS}
+              options={categoryOptions}
               error={
                 formik.touched.service_category &&
                 formik.errors.service_category

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const serviceCatalog = [
   {
     name: "Home Repair Services",
@@ -111,5 +113,65 @@ const serviceCatalog = [
     ],
   },
 ];
+
+export const fetchServiceCatalog = async () => {
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+    const response = await axios.get(`${apiBaseUrl}/api/v1/public/services`);
+    
+    if (response.data && response.data.data) {
+      const services = response.data.data;
+      
+      const grouped = {};
+      services.forEach((s) => {
+        const cat = s.category;
+        if (!grouped[cat]) {
+          grouped[cat] = [];
+        }
+        
+        // Extract base price numeric value from string (e.g. "PKR 1,500+" -> 1500)
+        let basePrice = 0;
+        if (s.price) {
+          const match = s.price.replace(/,/g, '').match(/\d+/);
+          if (match) {
+            basePrice = parseInt(match[0], 10);
+          }
+        }
+
+        grouped[cat].push({
+          id: s.id,
+          name: s.title,
+          basePrice: basePrice,
+          price: s.price,
+          duration: "1-2 hrs",
+          image: s.image,
+          subtitle: s.subtitle,
+          featured: s.featured,
+          location: s.location,
+        });
+      });
+      
+      const catalog = Object.keys(grouped).map((catName) => {
+        // Sort featured first, then title
+        const sortedServices = grouped[catName].sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return a.name.localeCompare(b.name);
+        });
+        
+        return {
+          name: catName,
+          services: sortedServices,
+        };
+      });
+      
+      return catalog;
+    }
+    return serviceCatalog;
+  } catch (error) {
+    console.error("Failed to fetch services from API, using fallback", error);
+    return serviceCatalog;
+  }
+};
 
 export default serviceCatalog;

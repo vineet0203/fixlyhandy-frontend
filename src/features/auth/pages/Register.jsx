@@ -25,6 +25,8 @@ import {
   WEEKDAYS,
   ALL_DAYS
 } from '../../clients/constants/clientConstants';
+import { categoryService } from '../../../services/categoryService';
+import axios from 'axios';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -39,6 +41,22 @@ const Register = () => {
 
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [currentError, setCurrentError] = useState(null);
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://api.fixlyhandy.com";
+        const res = await axios.get(`${apiBaseUrl}/api/v1/public/services`);
+        if (res.data && res.data.success) {
+          setServices(res.data.data);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch dynamic services", err);
+      }
+    };
+    loadServices();
+  }, []);
 
   // Handle Redux errors - SHOWS DIALOG FOR ALL ERRORS
   useEffect(() => {
@@ -87,7 +105,8 @@ const Register = () => {
         office_end_time: values.office_end_time,
         password: values.password,
         password_confirmation: values.password_confirmation,
-        terms_accepted: values.terms_accepted
+        terms_accepted: values.terms_accepted,
+        service_ids: values.service_ids || []
       };
 
       console.log('Sending registration data:', registrationData);
@@ -166,6 +185,7 @@ const Register = () => {
           password: '',
           password_confirmation: '',
           terms_accepted: false,
+          service_ids: [],
         }}
         validationSchema={registerSchema}
         onSubmit={handleSubmit}
@@ -269,91 +289,98 @@ const Register = () => {
 
               <Box sx={sectionCardSx}>
                 <Typography sx={sectionTitleSx}>Services</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                  <DebouncedSelect
-                    name="service_category"
-                    label="Main Service Category"
-                    value={values.service_category}
-                    onChange={(value) => {
-                      setFieldValue('service_category', value);
-                      setFieldValue('service_sub_category', '');
-                      setFieldValue('service_sub_category_custom', '');
-                      if (value !== 'custom') {
-                        setFieldValue('service_category_custom', '');
-                      }
-                    }}
-                    options={[
-                      ...MAIN_CATEGORY_OPTIONS,
-                      { value: 'custom', label: 'Add new main service' }
-                    ]}
-                    error={touched.service_category && Boolean(errors.service_category)}
-                    helperText={touched.service_category && errors.service_category}
-                    fullWidth
-                    required
-                    disabled={loading}
-                  />
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2 }}>
+                  {(() => {
+                    const servicesByCategory = services.reduce((acc, s) => {
+                      const cat = s.category || 'Other Services';
+                      if (!acc[cat]) acc[cat] = [];
+                      acc[cat].push(s);
+                      return acc;
+                    }, {});
 
-                  <DebouncedSelect
-                    name="service_sub_category"
-                    label="Service Subcategory"
-                    value={values.service_sub_category}
-                    onChange={(value) => {
-                      setFieldValue('service_sub_category', value);
-                      if (value !== 'custom') {
-                        setFieldValue('service_sub_category_custom', '');
-                      }
-                    }}
-                    options={
-                      values.service_category && SERVICE_CATEGORIES[values.service_category]
-                        ? [
-                          ...SERVICE_CATEGORIES[values.service_category].subcategories,
-                          { value: 'custom', label: 'Add new sub-service' }
-                        ]
-                        : values.service_category === 'custom'
-                          ? [{ value: 'custom', label: 'Add new sub-service' }]
-                          : []
-                    }
-                    error={touched.service_sub_category && Boolean(errors.service_sub_category)}
-                    helperText={touched.service_sub_category && errors.service_sub_category}
-                    fullWidth
-                    required
-                    disabled={!values.service_category || loading}
-                  />
+                    return (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+                        {Object.keys(servicesByCategory).map((categoryName) => (
+                          <Box key={categoryName} sx={{ width: '100%' }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1F4A7A', mb: 1.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              {categoryName}
+                            </Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                              {servicesByCategory[categoryName].map((service) => {
+                                const isSelected = values.service_ids?.includes(service.id);
+                                return (
+                                  <Box
+                                    key={service.id}
+                                    onClick={() => {
+                                      const currentIds = values.service_ids || [];
+                                      let nextIds;
+                                      if (currentIds.includes(service.id)) {
+                                        nextIds = currentIds.filter(id => id !== service.id);
+                                      } else {
+                                        nextIds = [...currentIds, service.id];
+                                      }
+                                      setFieldValue('service_ids', nextIds);
+                                      
+                                      if (nextIds.length > 0) {
+                                        const firstSelected = services.find(s => s.id === nextIds[0]);
+                                        if (firstSelected) {
+                                          setFieldValue('service_category', firstSelected.category);
+                                          setFieldValue('service_sub_category', firstSelected.sub_category || firstSelected.title);
+                                        }
+                                      } else {
+                                        setFieldValue('service_category', '');
+                                        setFieldValue('service_sub_category', '');
+                                      }
+                                    }}
+                                    sx={{
+                                      p: 2,
+                                      borderRadius: 1.5,
+                                      border: '1px solid',
+                                      borderColor: isSelected ? '#1F4A7A' : '#E3E8EF',
+                                      bgcolor: isSelected ? '#F0F5FA' : '#fff',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s',
+                                      '&:hover': {
+                                        borderColor: '#1F4A7A',
+                                        bgcolor: isSelected ? '#F0F5FA' : '#F7F9FC'
+                                      },
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 1.5
+                                    }}
+                                  >
+                                    <Checkbox
+                                      checked={isSelected}
+                                      size="small"
+                                      sx={{ color: '#1F4A7A', '&.Mui-checked': { color: '#1F4A7A' }, p: 0 }}
+                                    />
+                                    <Box sx={{ minWidth: 0 }}>
+                                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#0F2744' }}>
+                                        {service.title}
+                                      </Typography>
+                                      {service.subtitle && (
+                                        <Typography variant="caption" display="block" sx={{ color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                          {service.subtitle}
+                                        </Typography>
+                                      )}
+                                      <Typography variant="caption" sx={{ color: '#2E6D9D', fontWeight: 600 }}>
+                                        {service.price}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                );
+                              })}
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
+                    );
+                  })()}
 
-                  {values.service_category === 'custom' && (
-                    <Box sx={{ gridColumn: '1 / -1' }}>
-                      <DebouncedTextField
-                        name="service_category_custom"
-                        label="New Main Service"
-                        placeholder="Enter new main service"
-                        value={values.service_category_custom}
-                        onChange={(value) => setFieldValue('service_category_custom', value)}
-                        onBlur={() => setFieldTouched('service_category_custom', true)}
-                        error={touched.service_category_custom && Boolean(errors.service_category_custom)}
-                        helperText={touched.service_category_custom && errors.service_category_custom}
-                        required
-                        size="medium"
-                        disabled={loading}
-                      />
-                    </Box>
-                  )}
-
-                  {values.service_sub_category === 'custom' && (
-                    <Box sx={{ gridColumn: '1 / -1' }}>
-                      <DebouncedTextField
-                        name="service_sub_category_custom"
-                        label="New Sub-Service"
-                        placeholder="Enter new sub-service"
-                        value={values.service_sub_category_custom}
-                        onChange={(value) => setFieldValue('service_sub_category_custom', value)}
-                        onBlur={() => setFieldTouched('service_sub_category_custom', true)}
-                        error={touched.service_sub_category_custom && Boolean(errors.service_sub_category_custom)}
-                        helperText={touched.service_sub_category_custom && errors.service_sub_category_custom}
-                        required
-                        size="medium"
-                        disabled={loading}
-                      />
-                    </Box>
+                  {touched.service_category && errors.service_category && (
+                    <FormHelperText error>
+                      Please select at least one service.
+                    </FormHelperText>
                   )}
                 </Box>
               </Box>
