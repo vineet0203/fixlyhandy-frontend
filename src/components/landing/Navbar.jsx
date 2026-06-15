@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Hammer, Menu, Phone, X, PenTool } from "lucide-react";
 import { motion } from "framer-motion";
 import serviceCatalog from "./serviceCatalog";
-import logoBlue from "../../assets/logo_blue.png";
+import logoIcon from "../../assets/logo_icon.png";
 
 const navLinks = [
   { label: "Home", href: "#home" },
@@ -21,8 +21,11 @@ const Navbar = ({ onBook }) => {
       <div className="mx-auto w-full max-w-none px-6 md:px-10 lg:px-14 py-4 flex items-center justify-between">
         
         {/* Logo */}
-        <a href="#home" className="flex items-center">
-          <img src={logoBlue} alt="FixlyHandy Logo" className="h-[50px] w-auto object-contain scale-[2.5] origin-left sm:ml-4 ml-2" />
+        <a href="#home" className="flex items-center gap-2.5 sm:ml-4 ml-2">
+          <img src={logoIcon} alt="FixlyHandy Logo" className="h-[44px] w-auto object-contain" />
+          <span className="font-extrabold text-[24px] tracking-tight text-brand-navy flex items-center">
+            Fixly<span className="text-[#f26e06]">Handy</span>
+          </span>
         </a>
 
 {/* Desktop Nav Links */}
