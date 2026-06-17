@@ -78,7 +78,29 @@ const Register = () => {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://api.trakjobs.com";
         const res = await axios.get(`${apiBaseUrl}/api/v1/public/services`);
         if (res.data && res.data.success) {
-          setServices(res.data.data);
+          const formatted = (res.data.data || []).map(s => {
+            let formattedPrice = s.price || '';
+            if (s.price) {
+              const cleanPrice = s.price.toUpperCase();
+              const match = s.price.replace(/,/g, '').match(/\d+/);
+              if (match) {
+                let val = parseInt(match[0], 10);
+                if (cleanPrice.includes('PKR') || cleanPrice.includes('RS') || cleanPrice.includes('₹')) {
+                  const usdVal = Math.round(val / 100);
+                  formattedPrice = `USD $${usdVal}.00+`;
+                } else {
+                  if (!formattedPrice.includes('USD $') && !formattedPrice.includes('$')) {
+                    formattedPrice = `USD $${val}.00+`;
+                  }
+                }
+              }
+            }
+            return {
+              ...s,
+              price: formattedPrice
+            };
+          });
+          setServices(formatted);
         }
       } catch (err) {
         console.warn("Failed to fetch dynamic services", err);
