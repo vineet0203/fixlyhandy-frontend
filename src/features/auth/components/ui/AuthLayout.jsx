@@ -1,8 +1,8 @@
 import React from 'react';
 import { APP_NAME } from '../../../../utils/constants';
-import maintenanceWorkerImg from '../../../../assets/horizontal-shot-handsome-young-maintenance-service-worker-wearing-white-helmet Background Removed.png';
-import electricianImg from '../../../../assets/ready-start-my-work-proud-attractive-electrician-with-protective-gear-holding-toolbox-electricity-cables Background Removed.png';
-import plumberImg from '../../../../assets/plumber-pointing-lateral Background Removed.png';
+import maintenanceWorkerImg from '../../../../assets/horizontal-shot-handsome-young-maintenance-service-worker-wearing-white-helmet Background Removed.webp';
+import electricianImg from '../../../../assets/ready-start-my-work-proud-attractive-electrician-with-protective-gear-holding-toolbox-electricity-cables Background Removed.webp';
+import plumberImg from '../../../../assets/plumber-pointing-lateral Background Removed.webp';
 
 const AuthLayout = ({ children, title, isRegister = false }) => {
   const handleLogoClick = (e) => {
