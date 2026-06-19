@@ -60,7 +60,7 @@ const AuthLayout = ({ children, title, isRegister = false }) => {
                 </div>
                 <div className="leading-none pt-1 text-left">
                   <span className="text-[22px] font-bold tracking-tight text-white">
-                    Trak<span className="text-[#ffb800]">Jobs</span>
+                    Fixly<span className="text-[#ffb800]">Handy</span>
                   </span>
                   <div className="mt-0.5 text-[10px] font-semibold text-slate-300 tracking-wide uppercase">
                     Fix it. Right. On time.
@@ -192,7 +192,7 @@ const AuthLayout = ({ children, title, isRegister = false }) => {
               </div>
               <div className="leading-none pt-1 text-left">
                 <span className="text-[22px] font-bold tracking-tight text-[#0F2744]">
-                  Trak<span className="text-[#ffb800]">Jobs</span>
+                  Fixly<span className="text-[#ffb800]">Handy</span>
                 </span>
                 <div className="mt-0.5 text-[10px] font-semibold text-slate-500 tracking-wide uppercase">
                   Fix it. Right. On time.
