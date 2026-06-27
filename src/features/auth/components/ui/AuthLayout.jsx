@@ -154,10 +154,6 @@ const AuthLayout = ({ children, title, isRegister = false }) => {
       }}
     >
       <style>{`
-        @keyframes riseIn {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
         @keyframes floatSlow {
           0% { transform: translateY(0px); }
           50% { transform: translateY(-8px); }
@@ -165,9 +161,9 @@ const AuthLayout = ({ children, title, isRegister = false }) => {
         }
       `}</style>
 
-      <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#FFB24A] opacity-20 blur-2xl"></div>
-      <div className="absolute -bottom-24 right-6 h-80 w-80 rounded-full bg-[#35C6C6] opacity-20 blur-2xl"></div>
-      <div className="absolute top-24 right-12 h-40 w-40 rounded-full bg-white opacity-10 blur-xl" style={{ animation: 'floatSlow 8s ease-in-out infinite' }}></div>
+      <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#FFB24A] opacity-20 blur-2xl pointer-events-none"></div>
+      <div className="absolute -bottom-24 right-6 h-80 w-80 rounded-full bg-[#35C6C6] opacity-20 blur-2xl pointer-events-none"></div>
+      <div className="absolute top-24 right-12 h-40 w-40 rounded-full bg-white opacity-10 blur-xl pointer-events-none" style={{ animation: 'floatSlow 8s ease-in-out infinite' }}></div>
 
       <div className="relative z-10 w-full max-w-md">
         <div
