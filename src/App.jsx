@@ -9,7 +9,7 @@ import ErrorBoundary from './components/feedback/ErrorBoundary';
 import ProtectedRoute from './components/routes/ProtectedRoute';
 
 // Pages
-import { Login, Register, ForgotPassword, ResetPassword } from './features/auth';
+import { Login, Register, ForgotPassword, ResetPassword, VerificationPage } from './features/auth';
 import NotFound from './pages/NotFound';
 import Unauthorized from './pages/Unauthorized';
 
@@ -70,6 +70,9 @@ const AppContent = () => {
 
       {/* Public Onboarding Form (no auth - token-based) */}
       <Route path="/fill-form/:token" element={<FillForm />} />
+
+      {/* Verification page */}
+      <Route path="/verify" element={<ProtectedRoute><VerificationPage /></ProtectedRoute>} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>

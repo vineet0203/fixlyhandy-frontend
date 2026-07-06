@@ -43,6 +43,18 @@ const ProtectedRoute = ({ children, requiredRoles = [], requiredPermissions = []
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
+  // Redirect to verify if user is not verified and not on the verify page
+  if (user && !user.is_verified && location.pathname !== '/verify') {
+    console.log('User is not verified, redirecting to /verify');
+    return <Navigate to="/verify" replace />;
+  }
+
+  // Redirect to dashboard if user is verified and on the verify page
+  if (user && user.is_verified && location.pathname === '/verify') {
+    console.log('User is verified, redirecting to /dashboard');
+    return <Navigate to="/dashboard" replace />;
+  }
+
   // Check roles if required
   if (requiredRoles.length > 0) {
     const hasRequiredRole = requiredRoles.some(role => {

@@ -131,6 +131,10 @@ const authSlice = createSlice({
           console.error("Failed to parse user from storage:", e);
         }
       }
+    },
+    updateUser: (state, action) => {
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem("user", JSON.stringify(state.user));
     }
   },
   extraReducers: (builder) => {
@@ -252,5 +256,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, clearSuccess, setEmailForReset, loadFromStorage } = authSlice.actions;
+export const { clearError, clearSuccess, setEmailForReset, loadFromStorage, updateUser } = authSlice.actions;
 export default authSlice.reducer;
