@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useAuth } from '../hooks/useAuth';
 import { updateUser } from '../../../store/slices/authSlice';
 import httpClient from '../../../services/api/httpClient';
+import { API_ENDPOINTS } from '../../../services/api/config/apiConfig';
 
 const VerificationPage = () => {
   const navigate = useNavigate();
@@ -15,11 +16,11 @@ const VerificationPage = () => {
   const [emailOtp, setEmailOtp] = useState(['', '', '', '', '', '']);
   const [emailDebugOtp, setEmailDebugOtp] = useState('');
   const emailOtpInputsRef = useRef([]);
-  const [whatsappVerified, setWhatsappVerified] = useState(!!user?.whatsapp_verified_at);
-  const [whatsappNumber, setWhatsappNumber] = useState(user?.whatsapp_number || '');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [debugOtp, setDebugOtp] = useState('');
+  const [smsVerified, setSmsVerified] = useState(!!(user?.phone_verified_at || user?.whatsapp_verified_at));
+  const [smsPhoneNumber, setSmsPhoneNumber] = useState(user?.phone_number || user?.whatsapp_number || '');
+  const [smsSent, setSmsSent] = useState(false);
+  const [smsOtp, setSmsOtp] = useState(['', '', '', '', '', '']);
+  const [smsDebugOtp, setSmsDebugOtp] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -140,29 +141,37 @@ const VerificationPage = () => {
     }
   };
 
-  const sendWhatsappOtp = async () => {
+  const sendSmsOtp = async () => {
     setError('');
     setSuccess('');
-    if (!whatsappNumber.trim()) {
-      setError('Please enter a valid WhatsApp number.');
+    if (!smsPhoneNumber.trim()) {
+      setError('Please enter a valid phone number.');
       return;
     }
 
     setLoading(true);
     try {
-      const response = await httpClient.post('/api/v1/auth/verify/whatsapp/send', {
-        whatsapp_number: whatsappNumber.trim(),
+      // Mock Firebase RecaptchaVerifier check/activation
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = {
+          clear: () => console.log('Recaptcha cleared'),
+        };
+        console.log('Firebase RecaptchaVerifier setup initiated');
+      }
+
+      const response = await httpClient.post(API_ENDPOINTS.auth.sendSmsOtp, {
+        phone_number: smsPhoneNumber.trim(),
       });
 
       if (response.data.success) {
-        setOtpSent(true);
+        setSmsSent(true);
         if (response.data.data?.otp) {
-          setDebugOtp(response.data.data.otp);
+          setSmsDebugOtp(response.data.data.otp);
         }
-        setSuccess('WhatsApp verification code sent successfully.');
+        setSuccess('SMS verification code sent successfully.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send WhatsApp code.');
+      setError(err.response?.data?.message || 'Failed to send SMS code.');
     } finally {
       setLoading(false);
     }
@@ -171,9 +180,9 @@ const VerificationPage = () => {
   const handleOtpChange = (index, value) => {
     if (/[^0-9]/.test(value) && value !== '') return;
 
-    const newOtp = [...otp];
+    const newOtp = [...smsOtp];
     newOtp[index] = value.substring(value.length - 1);
-    setOtp(newOtp);
+    setSmsOtp(newOtp);
 
     // Auto-focus next input
     if (value && index < 5) {
@@ -182,15 +191,15 @@ const VerificationPage = () => {
   };
 
   const handleOtpKeyDown = (index, event) => {
-    if (event.key === 'Backspace' && !otp[index] && index > 0) {
+    if (event.key === 'Backspace' && !smsOtp[index] && index > 0) {
       otpInputsRef.current[index - 1]?.focus();
     }
   };
 
-  const verifyWhatsappOtp = async () => {
+  const verifySmsOtp = async () => {
     setError('');
     setSuccess('');
-    const otpValue = otp.join('');
+    const otpValue = smsOtp.join('');
     if (otpValue.length < 6) {
       setError('Please enter the full 6-digit verification code.');
       return;
@@ -198,22 +207,22 @@ const VerificationPage = () => {
 
     setLoading(true);
     try {
-      const response = await httpClient.post('/api/v1/auth/verify/whatsapp/verify', {
+      const response = await httpClient.post(API_ENDPOINTS.auth.verifySmsOtp, {
         otp: otpValue,
-        whatsapp_number: whatsappNumber.trim(),
+        phone_number: smsPhoneNumber.trim(),
       });
 
       if (response.data.success) {
         const updatedUser = response.data.data;
-        setWhatsappVerified(true);
-        setOtpSent(false);
-        setOtp(['', '', '', '', '', '']);
-        setDebugOtp('');
+        setSmsVerified(true);
+        setSmsSent(false);
+        setSmsOtp(['', '', '', '', '', '']);
+        setSmsDebugOtp('');
         dispatch(updateUser(updatedUser));
-        setSuccess('WhatsApp number verified successfully!');
+        setSuccess('Phone Verified');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'WhatsApp verification failed.');
+      setError(err.response?.data?.message || 'SMS verification failed.');
     } finally {
       setLoading(false);
     }
@@ -227,7 +236,7 @@ const VerificationPage = () => {
     logout();
   };
 
-  const isEitherVerified = googleVerified || whatsappVerified;
+  const isEitherVerified = googleVerified || smsVerified;
 
   const firstName = user?.first_name || '';
   const lastName = user?.last_name || '';
@@ -454,61 +463,64 @@ const VerificationPage = () => {
                 </div>
               </div>
 
-              {/* Option 2 - WhatsApp Verification */}
+              {/* Option 2 - SMS OTP Verification */}
               <div className="border border-gray-100 rounded-2xl p-6 bg-slate-50/50 flex flex-col justify-between hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-green-500">Method 2</span>
-                    {whatsappVerified && (
+                    {smsVerified && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Verified ✓
                       </span>
                     )}
                   </div>
-                  <h4 className="text-lg font-bold text-gray-800 mb-2">WhatsApp OTP</h4>
-                  <p className="text-xs text-gray-500 mb-6">Verify using a 6-digit OTP code sent directly to your WhatsApp number.</p>
+                  <h4 className="text-lg font-bold text-gray-800 mb-2">SMS OTP</h4>
+                  <p className="text-xs text-gray-500 mb-6">Verify using a 6-digit OTP code sent directly to your phone number via SMS.</p>
                 </div>
 
                 <div className="space-y-4">
-                  {whatsappVerified ? (
+                  {smsVerified ? (
                     <div className="flex items-center gap-2 text-brand-green font-bold text-sm">
                       <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
                       </svg>
-                      Verified Phone: {user?.whatsapp_number}
+                      Verified Phone: {user?.phone_number || user?.whatsapp_number}
                     </div>
                   ) : (
                     <div className="space-y-3">
                       <div className="flex gap-2">
                         <input
                           type="tel"
-                          value={whatsappNumber}
-                          onChange={(e) => setWhatsappNumber(e.target.value)}
-                          placeholder="+1 WhatsApp Number"
+                          value={smsPhoneNumber}
+                          onChange={(e) => setSmsPhoneNumber(e.target.value)}
+                          placeholder="+91 Phone Number"
                           className="flex-grow px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-sm"
-                          disabled={otpSent || loading}
+                          disabled={smsSent || loading}
                         />
                         <button
-                          onClick={sendWhatsappOtp}
-                          disabled={loading || !whatsappNumber.trim() || otpSent}
+                          onClick={sendSmsOtp}
+                          disabled={loading || !smsPhoneNumber.trim() || smsSent}
                           className="px-5 py-2.5 bg-brand-green hover:bg-green-700 text-white font-bold rounded-xl transition-all text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
-                          Send OTP
+                          Send OTP via SMS
                         </button>
                       </div>
 
+                      {/* Firebase Recaptcha container */}
+                      <div id="recaptcha-container"></div>
+
                       {/* Debug OTP Banner in dev mode */}
-                      {debugOtp && (
+                      {smsDebugOtp && (
                         <div className="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl text-xs">
-                          <p className="font-semibold">Dev/Mock Mode OTP: <span className="text-sm font-bold text-gray-900 tracking-widest">{debugOtp}</span></p>
+                          <p className="font-semibold">Dev/Mock Mode OTP: <span className="text-sm font-bold text-gray-900 tracking-widest">{smsDebugOtp}</span></p>
                         </div>
                       )}
 
-                      {otpSent && (
+                      {smsSent && (
                         <div className="space-y-3 pt-2">
-                          <p className="text-xs text-gray-500">Enter the 6-digit OTP code sent to your WhatsApp number:</p>
+                          <p className="text-xs text-gray-500">Enter the 6-digit OTP code sent to your phone number:</p>
                           <div className="flex space-x-2" data-purpose="otp-inputs">
-                            {otp.map((val, idx) => (
+                            {smsOtp.map((val, idx) => (
                               <input
                                 key={idx}
                                 ref={(el) => (otpInputsRef.current[idx] = el)}
@@ -523,11 +535,11 @@ const VerificationPage = () => {
                             ))}
                           </div>
                           <button
-                            onClick={verifyWhatsappOtp}
+                            onClick={verifySmsOtp}
                             disabled={loading}
                             className="w-full py-2 bg-brand-navy hover:bg-slate-800 text-white font-bold rounded-xl transition-all text-sm"
                           >
-                            Verify &amp; Link WhatsApp
+                            Verify &amp; Link Phone
                           </button>
                         </div>
                       )}

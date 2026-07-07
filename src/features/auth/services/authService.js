@@ -1,5 +1,6 @@
 // features/auth/services/authService.js
 import BaseApiService from "../../../services/api/baseApiService";
+import { API_ENDPOINTS } from "../../../services/api/config/apiConfig";
 
 class AuthService extends BaseApiService {
   constructor() {
@@ -213,6 +214,16 @@ class AuthService extends BaseApiService {
 
   isAuthenticated() {
     return !!localStorage.getItem("access_token");
+  }
+
+  async sendSmsOtp(phoneNumber) {
+    const response = await this.client.post(API_ENDPOINTS.auth.sendSmsOtp, { phone_number: phoneNumber });
+    return response;
+  }
+
+  async verifySmsOtp(phoneNumber, otp) {
+    const response = await this.client.post(API_ENDPOINTS.auth.verifySmsOtp, { phone_number: phoneNumber, otp });
+    return response;
   }
 }
 
