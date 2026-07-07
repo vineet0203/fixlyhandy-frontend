@@ -5,6 +5,8 @@ import { useAuth } from '../hooks/useAuth';
 import { updateUser } from '../../../store/slices/authSlice';
 import httpClient from '../../../services/api/httpClient';
 import { API_ENDPOINTS } from '../../../services/api/config/apiConfig';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth } from '../../../services/firebase';
 
 const VerificationPage = () => {
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ const VerificationPage = () => {
   const [smsSent, setSmsSent] = useState(false);
   const [smsOtp, setSmsOtp] = useState(['', '', '', '', '', '']);
   const [smsDebugOtp, setSmsDebugOtp] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const recaptchaVerifierRef = useRef(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -141,6 +145,21 @@ const VerificationPage = () => {
     }
   };
 
+  const handleResetSmsFlow = () => {
+    setSmsSent(false);
+    setSmsOtp(['', '', '', '', '', '']);
+    setSmsDebugOtp('');
+    setConfirmationResult(null);
+    if (recaptchaVerifierRef.current) {
+      try {
+        recaptchaVerifierRef.current.clear();
+      } catch (e) {
+        console.warn('Error clearing recaptcha verifier:', e);
+      }
+      recaptchaVerifierRef.current = null;
+    }
+  };
+
   const sendSmsOtp = async () => {
     setError('');
     setSuccess('');
@@ -151,27 +170,36 @@ const VerificationPage = () => {
 
     setLoading(true);
     try {
-      // Mock Firebase RecaptchaVerifier check/activation
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = {
-          clear: () => console.log('Recaptcha cleared'),
-        };
-        console.log('Firebase RecaptchaVerifier setup initiated');
-      }
-
-      const response = await httpClient.post(API_ENDPOINTS.auth.sendSmsOtp, {
-        phone_number: smsPhoneNumber.trim(),
-      });
-
-      if (response.data.success) {
-        setSmsSent(true);
-        if (response.data.data?.otp) {
-          setSmsDebugOtp(response.data.data.otp);
+      if (recaptchaVerifierRef.current) {
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {
+          console.warn('Error clearing recaptcha verifier:', e);
         }
-        setSuccess('SMS verification code sent successfully.');
+        recaptchaVerifierRef.current = null;
       }
+
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible'
+      });
+      recaptchaVerifierRef.current = verifier;
+
+      const formattedNumber = smsPhoneNumber.trim();
+      const confirmation = await signInWithPhoneNumber(auth, formattedNumber, verifier);
+      setConfirmationResult(confirmation);
+      setSmsSent(true);
+      setSuccess('SMS verification code sent successfully.');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send SMS code.');
+      console.error('Firebase sendSmsOtp error:', err);
+      setError(err.message || 'Failed to send SMS code.');
+      if (recaptchaVerifierRef.current) {
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {
+          console.warn('Error clearing recaptcha verifier on failure:', e);
+        }
+        recaptchaVerifierRef.current = null;
+      }
     } finally {
       setLoading(false);
     }
@@ -205,11 +233,18 @@ const VerificationPage = () => {
       return;
     }
 
+    if (!confirmationResult) {
+      setError('No active verification session found. Please request a code first.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await httpClient.post(API_ENDPOINTS.auth.verifySmsOtp, {
-        otp: otpValue,
-        phone_number: smsPhoneNumber.trim(),
+      const result = await confirmationResult.confirm(otpValue);
+      const idToken = await result.user.getIdToken();
+
+      const response = await httpClient.post(API_ENDPOINTS.auth.verifyFirebaseSms, {
+        id_token: idToken,
       });
 
       if (response.data.success) {
@@ -218,11 +253,15 @@ const VerificationPage = () => {
         setSmsSent(false);
         setSmsOtp(['', '', '', '', '', '']);
         setSmsDebugOtp('');
+        setConfirmationResult(null);
         dispatch(updateUser(updatedUser));
         setSuccess('Phone Verified');
+      } else {
+        setError(response.data.message || 'SMS verification failed.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'SMS verification failed.');
+      console.error('Firebase verifySmsOtp error:', err);
+      setError(err.message || 'SMS verification failed. The code may be invalid or expired.');
     } finally {
       setLoading(false);
     }
@@ -541,6 +580,16 @@ const VerificationPage = () => {
                           >
                             Verify &amp; Link Phone
                           </button>
+                          <div className="flex justify-between items-center text-xs mt-2">
+                            <span className="text-gray-500">Didn't receive it?</span>
+                            <button
+                              type="button"
+                              onClick={handleResetSmsFlow}
+                              className="text-brand-green font-bold hover:underline"
+                            >
+                              Change number / Resend
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

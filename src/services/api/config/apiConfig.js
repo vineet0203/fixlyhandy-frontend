@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
     resetPassword: "/api/v1/auth/password/reset",
     sendSmsOtp: "/api/v1/auth/verify/sms/send",
     verifySmsOtp: "/api/v1/auth/verify/sms/verify",
+    verifyFirebaseSms: "/api/v1/auth/verify/firebase-sms/verify",
   },
   clients: {
     base: "/api/v1/vendors/clients", // Updated path
