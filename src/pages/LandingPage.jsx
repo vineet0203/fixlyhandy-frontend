@@ -16,6 +16,7 @@ import CTASection from "../components/landing/CTASection";
 import Footer from "../components/landing/Footer";
 import BookingWorkflow from "../components/landing/BookingWorkflow";
 import serviceCatalog, { fetchServiceCatalog } from "../components/landing/serviceCatalog";
+import Chatbot from "../components/chatbot/Chatbot";
 
 const LandingPage = () => {
   const [bookingData, setBookingData] = useState(null);
@@ -64,6 +65,7 @@ const LandingPage = () => {
         <CTASection />
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 };
