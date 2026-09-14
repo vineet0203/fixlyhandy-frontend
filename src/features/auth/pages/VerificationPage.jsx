@@ -6,6 +6,8 @@ import { updateUser } from '../../../store/slices/authSlice';
 import httpClient from '../../../services/api/httpClient';
 import { API_ENDPOINTS } from '../../../services/api/config/apiConfig';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import { auth } from '../../../services/firebase';
 
 const VerificationPage = () => {
@@ -163,7 +165,7 @@ const VerificationPage = () => {
   const sendSmsOtp = async () => {
     setError('');
     setSuccess('');
-    if (!smsPhoneNumber.trim()) {
+    if (!(smsPhoneNumber || '').trim()) {
       setError('Please enter a valid phone number.');
       return;
     }
@@ -184,7 +186,7 @@ const VerificationPage = () => {
       });
       recaptchaVerifierRef.current = verifier;
 
-      const formattedNumber = smsPhoneNumber.trim();
+      const formattedNumber = smsPhoneNumber;
       const confirmation = await signInWithPhoneNumber(auth, formattedNumber, verifier);
       setConfirmationResult(confirmation);
       setSmsSent(true);
@@ -528,17 +530,20 @@ const VerificationPage = () => {
                   ) : (
                     <div className="space-y-3">
                       <div className="flex gap-2">
-                        <input
-                          type="tel"
-                          value={smsPhoneNumber}
-                          onChange={(e) => setSmsPhoneNumber(e.target.value)}
-                          placeholder="+91 Phone Number"
-                          className="flex-grow px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-sm"
-                          disabled={smsSent || loading}
-                        />
+                        <div className="flex-grow">
+                          <PhoneInput
+                            international
+                            defaultCountry="US"
+                            value={smsPhoneNumber}
+                            onChange={setSmsPhoneNumber}
+                            placeholder="Enter phone number"
+                            disabled={smsSent || loading}
+                            className="fh-phone-input w-full px-4 py-2.5 border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-brand-green outline-none text-sm"
+                          />
+                        </div>
                         <button
                           onClick={sendSmsOtp}
-                          disabled={loading || !smsPhoneNumber.trim() || smsSent}
+                          disabled={loading || !(smsPhoneNumber || '').trim() || smsSent}
                           className="px-5 py-2.5 bg-brand-green hover:bg-green-700 text-white font-bold rounded-xl transition-all text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           Send OTP via SMS
