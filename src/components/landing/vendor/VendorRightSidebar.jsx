@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Calendar,
-  Clock,
   MapPin,
   Check,
   Award,
@@ -10,8 +9,7 @@ import {
   FileBadge,
   MessageCircle,
   Mail,
-  ArrowRight,
-  ChevronDown
+  ArrowRight
 } from "lucide-react";
 
 // Partner SVG Logos matching the screenshot with subtle lift
@@ -100,41 +98,7 @@ const SERVICE_AREA_CITIES = [
   "McKinney",
 ];
 
-const VendorRightSidebar = ({
-  catalog,
-  selectedService,
-  onSelectService,
-  onRequestQuote,
-  onOpenMessageModal
-}) => {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-
-  const plumbingCategory = catalog?.find((c) =>
-    c.name.toLowerCase().includes("plumbing")
-  );
-
-  const servicesList = plumbingCategory?.services?.map((s) => s.name) || [
-    "Plumbing Service",
-    "Leak Detection & Repair",
-    "Drain Cleaning & Unclogging",
-    "Water Heater Installation & Repair",
-    "Faucet & Fixture Installation",
-    "Toilet Repair & Installation",
-    "Pipe Repair & Replacement",
-    "Garbage Disposal Installation",
-    "Emergency Plumbing (24/7)",
-  ];
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onRequestQuote({
-      service: selectedService || servicesList[0],
-      date,
-      time,
-    });
-  };
-
+const VendorRightSidebar = ({ onRequestQuote, onOpenMessageModal }) => {
   return (
     <aside className="w-full flex flex-col gap-6 font-sans">
       {/* 1. Book a Service Card */}
@@ -148,90 +112,19 @@ const VendorRightSidebar = ({
           </h3>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Service Dropdown */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Select Service
-            </label>
-            <div className="relative">
-              <select
-                value={selectedService || servicesList[0]}
-                onChange={(e) => onSelectService(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-[13px] font-semibold text-slate-800 appearance-none outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
-              >
-                {servicesList.map((svc) => (
-                  <option key={svc} value={svc}>
-                    {svc}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={16}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-              />
-            </div>
-          </div>
+        {/* Orange CTA Button with lift and hover darken */}
+        <button
+          type="button"
+          onClick={() => onRequestQuote({})}
+          className="w-full py-3.5 px-4 bg-[#f26e06] hover:bg-[#d95a00] text-white font-extrabold text-[15px] rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 ease-out motion-reduce:transform-none cursor-pointer tracking-wide"
+        >
+          Request a Quote
+        </button>
 
-          {/* Preferred Date */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Preferred Date
-            </label>
-            <div className="relative">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-[13px] font-semibold text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
-              />
-              <Calendar
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-              />
-            </div>
-          </div>
-
-          {/* Preferred Time */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Preferred Time
-            </label>
-            <div className="relative">
-              <select
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-8 py-2.5 text-xs sm:text-[13px] font-semibold text-slate-700 appearance-none outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
-              >
-                <option value="">Choose Time</option>
-                <option value="morning">Morning (8 AM - 12 PM)</option>
-                <option value="afternoon">Afternoon (12 PM - 4 PM)</option>
-                <option value="evening">Evening (4 PM - 8 PM)</option>
-              </select>
-              <Clock
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-              />
-              <ChevronDown
-                size={16}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-              />
-            </div>
-          </div>
-
-          {/* Orange CTA Button with lift and hover darken */}
-          <button
-            type="submit"
-            className="w-full mt-2 py-3.5 px-4 bg-[#f26e06] hover:bg-[#d95a00] text-white font-extrabold text-[15px] rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 ease-out motion-reduce:transform-none cursor-pointer tracking-wide"
-          >
-            Request a Quote
-          </button>
-
-          {/* Fine Print */}
-          <p className="text-center text-[11px] text-slate-400 font-medium tracking-tight">
-            No obligation • Free estimates • Quick response
-          </p>
-        </form>
+        {/* Fine Print */}
+        <p className="mt-4 text-center text-[11px] text-slate-400 font-medium tracking-tight">
+          No obligation • Free estimates • Quick response
+        </p>
       </div>
 
       {/* 2. Service Area Card */}

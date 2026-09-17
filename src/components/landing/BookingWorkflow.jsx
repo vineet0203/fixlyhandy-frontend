@@ -169,7 +169,46 @@ const serviceIcons = {
   "Office Setup Assistance": Briefcase,
 };
 
-const BookingWorkflow = ({ catalog, initialSelection }) => {
+// SERVICE_CATEGORIES is the offline stand-in for /api/v1/public/service-categories:
+// it is keyed by the backend category slug, and each entry carries the category's
+// display `name` plus its `subcategories`.
+const FALLBACK_CATEGORY_SLUG = "home-services";
+
+const resolveFallbackCategorySlug = (categoryName) => {
+  if (!categoryName) return FALLBACK_CATEGORY_SLUG;
+
+  const stripped = categoryName.replace(/\s+Services$/i, "").trim();
+
+  // The live catalog groups services by the backend category name, so in the
+  // common case the name matches a category outright. The " Services" suffix is
+  // tried both ways because the two catalogs spell it inconsistently.
+  const byName = Object.keys(SERVICE_CATEGORIES).find((key) => {
+    const name = SERVICE_CATEGORIES[key].name;
+    return (
+      name === categoryName ||
+      name === categoryName + " Services" ||
+      name === stripped
+    );
+  });
+  if (byName) return byName;
+
+  // The bundled serviceCatalog.js fallback uses a finer taxonomy whose category
+  // names ("Plumbing Services", "Appliance Services") correspond to backend
+  // sub-categories, so resolve through those to the category that owns them.
+  const trimmed = stripped.toLowerCase();
+  if (!trimmed) return FALLBACK_CATEGORY_SLUG;
+
+  const bySubCategory = Object.keys(SERVICE_CATEGORIES).find((key) =>
+    SERVICE_CATEGORIES[key].subcategories?.some((sub) => {
+      const label = sub.label.toLowerCase();
+      return label === trimmed || label.startsWith(trimmed) || trimmed.startsWith(label);
+    })
+  );
+
+  return bySubCategory || FALLBACK_CATEGORY_SLUG;
+};
+
+const BookingWorkflow = ({ catalog, initialSelection, preferredDate, preferredTime }) => {
   // Always treating this as step 2 (Select Service) / 3 (Service Details) combined view for now
   // We'll advance to step 4 when "Review & Book" is clicked, but the core request
   // is to build the specific "Select Service/Details" dashboard layout.
@@ -198,8 +237,8 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
     }));
   };
   const [notes, setNotes] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [startTime, setStartTime] = useState("");
+  const [startDate, setStartDate] = useState(preferredDate || "");
+  const [startTime, setStartTime] = useState(preferredTime || "");
   const [files, setFiles] = useState([]);
   const [dynamicCategories, setDynamicCategories] = useState([]);
   const [dynamicSubCategories, setDynamicSubCategories] = useState([]);
@@ -256,9 +295,7 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
         )?.slug;
 
         if (!matchedCategory) {
-          matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
-            SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
-          ) || 'home_repair';
+          matchedCategory = resolveFallbackCategorySlug(selectedCategory);
         }
 
         const catObj = dynamicCategories.find(c => c.slug === matchedCategory);
@@ -308,6 +345,17 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
     setSelectedCategory(initialCategory);
     setSelectedService(initialService);
   }, [initialCategory, initialService]);
+
+  // Carry over a date/time an entry point already collected (e.g. the landing
+  // page "Book a Service" widget). Both are optional: entry points that supply
+  // nothing leave whatever is already in the form untouched.
+  useEffect(() => {
+    if (preferredDate) setStartDate(preferredDate);
+  }, [preferredDate]);
+
+  useEffect(() => {
+    if (preferredTime) setStartTime(preferredTime);
+  }, [preferredTime]);
 
   const basePrice = serviceData ? serviceData.basePrice : 0;
   const serviceFee = serviceData ? 10 : 0;
@@ -830,9 +878,7 @@ const BookingWorkflow = ({ catalog, initialSelection }) => {
                     )?.slug;
 
                     if (!matchedCategory) {
-                      matchedCategory = Object.keys(SERVICE_CATEGORIES).find(key => 
-                        SERVICE_CATEGORIES[key].label === selectedCategory || SERVICE_CATEGORIES[key].label === selectedCategory + " Services"
-                      ) || 'home_repair';
+                      matchedCategory = resolveFallbackCategorySlug(selectedCategory);
                     }
 
                     const catObj = dynamicCategories.find(c => c.slug === matchedCategory);
