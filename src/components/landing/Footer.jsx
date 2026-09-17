@@ -18,7 +18,9 @@ import {
   Lock,
   Star,
   Clock,
-  Send
+  Send,
+  ArrowRight,
+  Smartphone
 } from "lucide-react";
 
 const Footer = () => {
@@ -193,18 +195,18 @@ const Footer = () => {
       {/* ============================================================ */}
       <div
         ref={band1Ref}
-        className={`bg-white border-t border-slate-200 pt-12 pb-14 px-4 sm:px-6 lg:px-10 xl:px-12 scroll-fade ${
+        className={`bg-white border-t border-slate-200/80 pt-14 pb-16 px-4 sm:px-6 lg:px-10 xl:px-12 scroll-fade ${
           visibleSections.band1 ? "show-fade" : "hidden-fade"
         }`}
       >
-        <div className="max-w-[1520px] mx-auto flex flex-col lg:flex-row gap-8 lg:gap-10 xl:gap-8 items-start justify-between">
+        <div className="max-w-[1520px] mx-auto flex flex-col lg:flex-row gap-10 xl:gap-14 items-start justify-between">
           
-          {/* Left Column: Brand Logo, Tagline, Trust Badges, Handwritten Script */}
-          <div className="w-full lg:w-[220px] xl:w-[230px] flex-shrink-0 flex flex-col items-start">
+          {/* Left Column: Brand Identity, Value Prop, Trust Signals & Signature */}
+          <div className="w-full lg:w-[280px] xl:w-[300px] flex-shrink-0 flex flex-col items-start">
             {/* Logo */}
             <a href="#home" className="flex items-center gap-2.5 group">
-              <div className="relative w-12 h-12 flex-shrink-0">
-                <svg viewBox="0 0 54 54" className="w-full h-full drop-shadow-sm">
+              <div className="relative w-11 h-11 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+                <svg viewBox="0 0 54 54" className="w-full h-full drop-shadow-xs">
                   {/* Roof eaves (orange) */}
                   <path d="M27 5 L50 24 L45 28 L27 13 L9 28 L4 24 Z" fill="#f26e06" />
                   {/* House base (brand-navy) */}
@@ -218,61 +220,62 @@ const Footer = () => {
                 </svg>
               </div>
               <div className="flex flex-col">
-                <span className="text-[26px] font-black tracking-tight leading-none">
+                <span className="text-[25px] font-black tracking-tight leading-none">
                   <span className="text-[#0D1B2A]">fixly</span>
                   <span className="text-[#f26e06]">handy</span>
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-0.5">
+                  Find • Hire • Done
                 </span>
               </div>
             </a>
 
-            {/* Slogan */}
-            <p className="mt-2 text-[12px] font-extrabold text-[#0D1B2A] tracking-wider uppercase">
-              Find &bull; Hire &bull; Get It Done
+            {/* Value Proposition */}
+            <p className="mt-3 text-[13px] leading-relaxed text-slate-600 max-w-[280px]">
+              The modern marketplace connecting homeowners with vetted, background-checked service professionals. Upfront pricing and guaranteed quality.
             </p>
 
-            {/* Tagline */}
-            <p className="mt-1.5 text-[12px] leading-relaxed text-slate-600 max-w-[210px]">
-              Trusted Local Providers for Every Project, Big or Small.
-            </p>
-
-            {/* Three Trust Badges (Row) */}
-            <div className="mt-4 grid grid-cols-3 gap-2 w-full max-w-[220px] pt-1">
-              <div className="flex flex-col items-center text-center group">
-                <div className="w-8 h-8 rounded-full border border-orange-200 bg-orange-50 flex items-center justify-center text-[#f26e06] group-hover:bg-[#f26e06] group-hover:text-white transition-colors duration-200">
-                  <ShieldCheck size={16} strokeWidth={2.2} />
+            {/* Elevated Trust Signals (Clean Stacked Cards) */}
+            <div className="mt-5 flex flex-col gap-2 w-full max-w-[280px]">
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50/90 border border-slate-200/80 text-slate-800 transition-colors hover:bg-slate-100/80">
+                <div className="w-6 h-6 rounded-lg bg-orange-100/90 text-[#f26e06] flex items-center justify-center shrink-0">
+                  <ShieldCheck size={14} strokeWidth={2.5} />
                 </div>
-                <span className="mt-1.5 text-[10px] font-bold text-slate-800 leading-tight">
-                  Verified Providers
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[11.5px] font-bold text-[#0D1B2A] leading-tight">Verified Providers</span>
+                  <span className="text-[10px] text-slate-500 leading-tight">100% background-checked pros</span>
+                </div>
               </div>
 
-              <div className="flex flex-col items-center text-center group">
-                <div className="w-8 h-8 rounded-full border border-orange-200 bg-orange-50 flex items-center justify-center text-[#f26e06] group-hover:bg-[#f26e06] group-hover:text-white transition-colors duration-200">
-                  <Tag size={15} strokeWidth={2.2} />
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50/90 border border-slate-200/80 text-slate-800 transition-colors hover:bg-slate-100/80">
+                <div className="w-6 h-6 rounded-lg bg-emerald-100/90 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Tag size={14} strokeWidth={2.5} />
                 </div>
-                <span className="mt-1.5 text-[10px] font-bold text-slate-800 leading-tight">
-                  Fair Pricing
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[11.5px] font-bold text-[#0D1B2A] leading-tight">Fair &amp; Transparent</span>
+                  <span className="text-[10px] text-slate-500 leading-tight">Upfront quotes, zero surprises</span>
+                </div>
               </div>
 
-              <div className="flex flex-col items-center text-center group">
-                <div className="w-8 h-8 rounded-full border border-orange-200 bg-orange-50 flex items-center justify-center text-[#f26e06] group-hover:bg-[#f26e06] group-hover:text-white transition-colors duration-200">
-                  <Users size={15} strokeWidth={2.2} />
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50/90 border border-slate-200/80 text-slate-800 transition-colors hover:bg-slate-100/80">
+                <div className="w-6 h-6 rounded-lg bg-blue-100/90 text-blue-600 flex items-center justify-center shrink-0">
+                  <Users size={14} strokeWidth={2.5} />
                 </div>
-                <span className="mt-1.5 text-[10px] font-bold text-slate-800 leading-tight">
-                  Trusted Community
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[11.5px] font-bold text-[#0D1B2A] leading-tight">Trusted Community</span>
+                  <span className="text-[10px] text-slate-500 leading-tight">25,000+ completed projects</span>
+                </div>
               </div>
             </div>
 
-            {/* Handwritten Script with Orange Swash */}
-            <div className="mt-6 flex flex-col items-start pl-1">
-              <span className="font-script text-[28px] xl:text-[32px] font-bold text-[#0D1B2A] -rotate-3 select-none leading-none">
+            {/* Handwritten Signature Motto */}
+            <div className="mt-5 flex flex-col items-start pl-1">
+              <span className="font-script text-[26px] font-bold text-[#0D1B2A] -rotate-2 select-none leading-none">
                 A Handier Tomorrow
               </span>
               <svg
                 viewBox="0 0 170 18"
-                className="w-40 h-3.5 text-[#f26e06] -mt-1 fill-current overflow-visible"
+                className="w-36 h-3 text-[#f26e06] -mt-0.5 fill-current overflow-visible"
                 aria-hidden="true"
               >
                 <path d="M4 12 C 45 16, 105 17, 166 3 C 115 10, 60 12, 4 12 Z" />
@@ -280,277 +283,231 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Center 7 Link Columns */}
+          {/* Center: 4 Refined, Spaced Link Columns */}
           <nav
             aria-label="Footer Navigation"
-            className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-x-6 gap-y-8"
+            className="flex-1 w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10"
           >
-            {/* Column 1: PRODUCTS */}
-            <div>
-              <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
-                PRODUCTS
-              </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
-              <ul className="space-y-2 text-[13px]">
-                {[
-                  "Find a Provider",
-                  "Book a Service",
-                  "Instant Quotes",
-                  "Project Management",
-                  "Payments & Invoicing",
-                  "Ratings & Reviews",
-                  "Mobile Apps",
-                  "Business Solutions",
-                  "API & Integrations",
-                  "Pricing Plans",
-                ].map((item) => (
-                  <li key={item}>
-                    <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 2: FIXLYHANDY PROVIDERS */}
-            <div>
-              <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
-                FIXLYHANDY PROVIDERS
-              </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
-              <ul className="space-y-2 text-[13px]">
-                {[
-                  "Join as a Provider",
-                  "Provider Dashboard",
-                  "Manage Jobs",
-                  "Availability & Scheduling",
-                  "Verify Your Skills",
-                  "Background Check",
-                  "Provider Resources",
-                  "Tools & Training",
-                  "Success Stories",
-                  "Provider Community",
-                ].map((item) => (
-                  <li key={item}>
-                    <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 3: SERVICES */}
+            {/* Column 1: SERVICES */}
             <div>
               <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
                 SERVICES
               </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
-              <ul className="space-y-2 text-[13px]">
+              <div className="w-5 h-[2px] bg-[#f26e06] rounded-full mt-1.5 mb-4" />
+              <ul className="space-y-2.5 text-[13px]">
                 {[
-                  "Home Repairs",
-                  "Plumbing",
-                  "Electrical",
-                  "Carpentry",
-                  "Painting",
-                  "HVAC",
-                  "Landscaping",
-                  "Cleaning",
-                  "Flooring & Tile",
-                  "All Services",
+                  { name: "Plumbing Repair", href: "#plumbing" },
+                  { name: "Electrical Work", href: "#electrical" },
+                  { name: "Home Repairs", href: "#home-repairs" },
+                  { name: "HVAC & Heating", href: "#hvac" },
+                  { name: "Painting & Drywall", href: "#painting" },
+                  { name: "Carpentry Services", href: "#carpentry" },
+                  { name: "Cleaning & Maid", href: "#cleaning" },
+                  { name: "Flooring & Tile", href: "#flooring" },
                 ].map((item) => (
-                  <li key={item}>
+                  <li key={item.name}>
                     <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
+                      href={item.href}
+                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded transition-colors"
                     >
-                      {item}
+                      {item.name}
+                    </a>
+                  </li>
+                ))}
+                <li className="pt-1">
+                  <a
+                    href="#services"
+                    className="inline-flex items-center gap-1 text-[12px] font-bold text-[#f26e06] hover:text-[#e05d00] transition-colors"
+                  >
+                    <span>Browse All Services</span>
+                    <ArrowRight size={13} />
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 2: FOR CUSTOMERS */}
+            <div>
+              <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
+                FOR CUSTOMERS
+              </h3>
+              <div className="w-5 h-[2px] bg-[#f26e06] rounded-full mt-1.5 mb-4" />
+              <ul className="space-y-2.5 text-[13px]">
+                {[
+                  { name: "Find a Local Provider", href: "#find-provider" },
+                  { name: "Book a Service", href: "#book" },
+                  { name: "Get Instant Quote", href: "#quote" },
+                  { name: "Live Project Tracking", href: "#tracking" },
+                  { name: "Secure Escrow Payments", href: "#payments" },
+                  { name: "Verified Client Reviews", href: "#reviews" },
+                  { name: "FixlyHandy Guarantee", href: "#guarantee" },
+                  { name: "Customer Help Center", href: "#help" },
+                ].map((item) => (
+                  <li key={item.name}>
+                    <a
+                      href={item.href}
+                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded transition-colors"
+                    >
+                      {item.name}
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Column 4: OUR COMMUNITY */}
+            {/* Column 3: FOR PROVIDERS */}
             <div>
               <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
-                OUR COMMUNITY
+                FOR PROVIDERS
               </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
-              <ul className="space-y-2 text-[13px]">
+              <div className="w-5 h-[2px] bg-[#f26e06] rounded-full mt-1.5 mb-4" />
+              <ul className="space-y-2.5 text-[13px]">
                 {[
-                  "Customer Stories",
-                  "Provider Stories",
-                  "Tips & Guides",
-                  "Home Improvement Blog",
-                  "DIY Resources",
-                  "Community Projects",
-                  "Charity & Give Back",
-                  "Refer a Friend",
-                  "Events & Initiatives",
-                  "Local Impact",
+                  { name: "Join as a Provider", href: "#join-provider" },
+                  { name: "Provider Dashboard", href: "#provider-dashboard" },
+                  { name: "Job Dispatch & Schedule", href: "#manage-jobs" },
+                  { name: "Skill & ID Verification", href: "#verification" },
+                  { name: "Direct Payouts & Invoicing", href: "#payouts" },
+                  { name: "Pro Success Stories", href: "#success-stories" },
+                  { name: "Growth Tools & Resources", href: "#resources" },
+                  { name: "Provider Community", href: "#community" },
                 ].map((item) => (
-                  <li key={item}>
+                  <li key={item.name}>
                     <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
+                      href={item.href}
+                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded transition-colors"
                     >
-                      {item}
+                      {item.name}
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Column 5: AI & SMART TOOLS */}
+            {/* Column 4: AI & INNOVATION */}
             <div>
               <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
-                AI &amp; SMART TOOLS
+                AI &amp; INNOVATION
               </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
+              <div className="w-5 h-[2px] bg-[#f26e06] rounded-full mt-1.5 mb-4" />
 
-              {/* Masterdesk AI Highlight Item with NEW pill */}
-              <div className="mb-2.5 p-1.5 -ml-1 rounded-lg hover:bg-orange-50/60 transition-colors">
+              {/* Masterdesk AI Highlight Item */}
+              <div className="mb-3 p-2 rounded-xl bg-orange-50/70 border border-orange-100 hover:border-orange-200 transition-colors">
                 <a
                   href="#masterdesk-ai"
                   className="group flex items-start gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
                 >
-                  <div className="w-6 h-6 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0 mt-0.5">
-                    <Bot size={14} />
+                  <div className="w-6 h-6 rounded-lg bg-[#f26e06] text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
+                    <Bot size={13} />
                   </div>
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[13px] font-semibold text-slate-800 group-hover:text-[#f26e06] transition-colors">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[12.5px] font-bold text-slate-900 group-hover:text-[#f26e06] transition-colors">
                         Masterdesk AI
                       </span>
-                      <span className="bg-[#f26e06] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase leading-none shadow-xs">
+                      <span className="bg-[#f26e06] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase leading-none">
                         NEW
                       </span>
                     </div>
                     <span className="text-[11px] text-slate-500 leading-tight">
-                      Answering Service
+                      24/7 Smart Answering
                     </span>
                   </div>
                 </a>
               </div>
 
-              <ul className="space-y-2 text-[13px]">
+              <ul className="space-y-2.5 text-[13px]">
                 {[
-                  "AI Service Match",
-                  "AI Project Estimator",
-                  "AI Scheduling Assistant",
-                  "AI Chat Support",
-                  "AI Home Maintenance Tips",
-                  "AI for Providers",
-                  "Smart Notifications",
-                  "Business Automation",
-                  "AI Insights & Reports",
+                  { name: "AI Project Estimator", href: "#estimator" },
+                  { name: "Smart Pro Matchmaking", href: "#match" },
+                  { name: "Automated Scheduling", href: "#ai-scheduling" },
+                  { name: "Home Maintenance Tips", href: "#maintenance" },
+                  { name: "Smart Job Notifications", href: "#notifications" },
+                  { name: "Business Automation", href: "#automation" },
                 ].map((item) => (
-                  <li key={item}>
+                  <li key={item.name}>
                     <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
+                      href={item.href}
+                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded transition-colors"
                     >
-                      {item}
+                      {item.name}
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
+          </nav>
 
-            {/* Column 6: MANAGE YOUR WORK */}
-            <div>
-              <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
-                MANAGE YOUR WORK
-              </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
-              <ul className="space-y-2 text-[13px]">
-                {[
-                  "Job Tracking",
-                  "Scheduling",
-                  "Customer Messages",
-                  "Estimates & Invoices",
-                  "Work History",
-                  "Client Management",
-                  "Calendar & Reminders",
-                  "Mobile Access",
-                  "Analytics & Reports",
-                  "Grow Your Business",
-                ].map((item) => (
-                  <li key={item}>
-                    <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Right Column: Sleek Luxury Mobile App Card */}
+          <div className="w-full lg:w-[260px] xl:w-[280px] flex-shrink-0">
+            <div className="relative rounded-2xl bg-gradient-to-b from-[#0D1B2A] via-[#112236] to-[#0A1B2D] border border-slate-800 p-5 text-white shadow-xl shadow-slate-950/5 overflow-hidden flex flex-col justify-between group">
+              
+              {/* Subtle ambient accent glow */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 bg-[#f26e06]/20 rounded-full blur-2xl pointer-events-none" />
 
-            {/* Column 7: MOBILE APPS + App Store & Google Play Badges */}
-            <div>
-              <h3 className="text-[12px] font-bold text-[#0D1B2A] tracking-wider uppercase">
-                MOBILE APPS
-              </h3>
-              <div className="w-5 h-[2.5px] bg-[#f26e06] rounded-full mt-1 mb-3.5" />
-              <ul className="space-y-2 text-[13px] mb-4">
-                {[
-                  "iOS App",
-                  "Android App",
-                  "Provider App",
-                  "Customer App",
-                  "Push Notifications",
-                  "GPS & Live Tracking",
-                  "Offline Access",
-                ].map((item) => (
-                  <li key={item}>
-                    <a
-                      href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="footer-link-wipe text-slate-600 hover:text-[#f26e06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06] rounded"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div>
+                {/* App Rating Badge */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center text-[#f26e06]">
+                      <Smartphone size={15} />
+                    </div>
+                    <span className="text-[12px] font-bold tracking-tight text-white">Mobile Experience</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
+                    <Star size={10} className="fill-amber-300 text-amber-300" />
+                    4.9 / 5
+                  </span>
+                </div>
 
-              {/* App Store & Google Play download badges */}
-              <div className="space-y-2 pt-1">
-                {/* App Store */}
+                <h4 className="text-[14px] font-extrabold text-white mt-3 leading-snug">
+                  Get the FixlyHandy App
+                </h4>
+                <p className="text-[11.5px] text-slate-300 mt-1 leading-relaxed">
+                  Book certified pros in seconds, track arrivals with live GPS, and pay seamlessly.
+                </p>
+
+                {/* Features List */}
+                <div className="mt-3.5 space-y-1.5 text-[11px] text-slate-300/90 border-t border-white/10 pt-3">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 size={12} className="text-[#f26e06] shrink-0" />
+                    <span>Real-time pro arrival tracking</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                    <span>Instant quote approvals &amp; chat</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 size={12} className="text-sky-400 shrink-0" />
+                    <span>Secure one-tap escrow payments</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Download Buttons */}
+              <div className="mt-5 space-y-2">
+                {/* App Store Button */}
                 <a
                   href="#app-store"
-                  aria-label="Download FixlyHandy on the App Store"
-                  className="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors border border-slate-700 shadow-sm w-full max-w-[140px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06]"
+                  aria-label="Download on the App Store"
+                  className="flex items-center gap-2.5 bg-white/10 hover:bg-white/15 border border-white/15 hover:border-white/25 text-white px-3.5 py-2 rounded-xl transition-all duration-200 group/btn shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06]"
                 >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current flex-shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current flex-shrink-0 transition-transform group-hover/btn:scale-110">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.09 1.73-1.03 2.76 1.01.08 2.05-.51 2.67-1.26z" />
                   </svg>
                   <div className="flex flex-col text-left leading-tight">
-                    <span className="text-[8px] text-slate-300 font-normal uppercase tracking-tight">
-                      Download on the
-                    </span>
-                    <span className="text-[12px] font-semibold text-white tracking-tight">
-                      App Store
-                    </span>
+                    <span className="text-[8px] text-slate-300 uppercase tracking-widest font-medium">Download on the</span>
+                    <span className="text-[12px] font-bold text-white tracking-tight">App Store</span>
                   </div>
                 </a>
 
-                {/* Google Play */}
+                {/* Google Play Button */}
                 <a
                   href="#google-play"
-                  aria-label="Get FixlyHandy on Google Play"
-                  className="flex items-center gap-2 bg-black text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors border border-slate-700 shadow-sm w-full max-w-[140px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06]"
+                  aria-label="Get it on Google Play"
+                  className="flex items-center gap-2.5 bg-white/10 hover:bg-white/15 border border-white/15 hover:border-white/25 text-white px-3.5 py-2 rounded-xl transition-all duration-200 group/btn shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f26e06]"
                 >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0 transition-transform group-hover/btn:scale-110">
                     <path
                       d="M3.609 1.814L13.792 12 3.61 22.186a1.99 1.99 0 0 1-.61-1.444V3.258c0-.568.225-1.087.609-1.444z"
                       fill="#00D3FF"
@@ -569,102 +526,18 @@ const Footer = () => {
                     />
                   </svg>
                   <div className="flex flex-col text-left leading-tight">
-                    <span className="text-[8px] text-slate-300 font-normal uppercase tracking-tight">
-                      GET IT ON
-                    </span>
-                    <span className="text-[12px] font-semibold text-white tracking-tight">
-                      Google Play
-                    </span>
+                    <span className="text-[8px] text-slate-300 uppercase tracking-widest font-medium">Get it on</span>
+                    <span className="text-[12px] font-bold text-white tracking-tight">Google Play</span>
                   </div>
                 </a>
               </div>
-            </div>
-          </nav>
 
-          {/* Right Column: Realistic Phone Mockup (Hidden below lg) */}
-          <div className="hidden lg:block w-[185px] xl:w-[200px] flex-shrink-0">
-            <div className="relative mx-auto w-full max-w-[200px] rounded-[32px] border-[5px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden ring-1 ring-slate-800">
-              
-              {/* Dynamic Island / Speaker Pill */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-3 bg-black rounded-full z-20 flex items-center justify-end px-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+              <div className="mt-3 text-center">
+                <span className="text-[10px] text-slate-400 font-medium">
+                  Free download • Compatible with iOS &amp; Android
+                </span>
               </div>
 
-              {/* Inner Screen */}
-              <div className="relative w-full bg-[#0a2038] text-white pt-6 pb-2 flex flex-col items-center">
-                
-                {/* Header in Phone: Logo */}
-                <div className="flex flex-col items-center pt-1 px-3 text-center">
-                  <div className="w-7 h-7">
-                    <svg viewBox="0 0 54 54" className="w-full h-full">
-                      <path d="M27 5 L50 24 L45 28 L27 13 L9 28 L4 24 Z" fill="#f26e06" />
-                      <polygon points="11,26 27,15 43,26 43,47 11,47" fill="#ffffff" />
-                      <g transform="translate(19, 24) rotate(-35) scale(0.72)">
-                        <rect x="7" y="0" width="11" height="8" rx="2" fill="#0D1B2A" />
-                        <rect x="11" y="6" width="3.5" height="17" rx="1.5" fill="#0D1B2A" />
-                      </g>
-                    </svg>
-                  </div>
-                  <span className="text-[14px] font-black tracking-tight leading-tight mt-0.5">
-                    <span className="text-white">fixly</span>
-                    <span className="text-[#f26e06]">handy</span>
-                  </span>
-                  <span className="text-[9px] text-slate-300 font-medium">
-                    Your Home Projects Made Easy
-                  </span>
-                </div>
-
-                {/* 4 Action Pills */}
-                <div className="w-full px-2.5 space-y-1.5 mt-2.5">
-                  <div className="bg-white/95 rounded-lg px-2 py-1.5 flex items-center gap-2 shadow-xs">
-                    <div className="w-5 h-5 rounded-md bg-[#f26e06] text-white flex items-center justify-center flex-shrink-0">
-                      <Calendar size={11} strokeWidth={2.5} />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-800">Book a Service</span>
-                  </div>
-
-                  <div className="bg-white/95 rounded-lg px-2 py-1.5 flex items-center gap-2 shadow-xs">
-                    <div className="w-5 h-5 rounded-md bg-sky-500 text-white flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 size={11} strokeWidth={2.5} />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-800">Track Progress</span>
-                  </div>
-
-                  <div className="bg-white/95 rounded-lg px-2 py-1.5 flex items-center gap-2 shadow-xs">
-                    <div className="w-5 h-5 rounded-md bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
-                      <Lock size={11} strokeWidth={2.5} />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-800">Pay Securely</span>
-                  </div>
-
-                  <div className="bg-white/95 rounded-lg px-2 py-1.5 flex items-center gap-2 shadow-xs">
-                    <div className="w-5 h-5 rounded-md bg-purple-500 text-white flex items-center justify-center flex-shrink-0">
-                      <Star size={11} strokeWidth={2.5} />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-800">Rate &amp; Review</span>
-                  </div>
-                </div>
-
-                {/* House Photo Preview */}
-                <div className="w-full px-2 mt-2">
-                  <div className="w-full h-[76px] rounded-t-lg overflow-hidden border-t border-x border-white/20 shadow-xs relative bg-slate-800">
-                    <img
-                      src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80"
-                      alt="Modern home"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                </div>
-
-                {/* Orange Bottom Button */}
-                <div className="w-full px-2">
-                  <div className="w-full bg-[#f26e06] hover:bg-[#e05d00] transition-colors text-white text-[10.5px] font-extrabold py-2 text-center rounded-b-xl shadow-md cursor-pointer">
-                    Get It Done Today!
-                  </div>
-                </div>
-
-              </div>
             </div>
           </div>
 
